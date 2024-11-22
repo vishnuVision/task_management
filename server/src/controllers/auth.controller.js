@@ -6,102 +6,121 @@ import bcrypt from "bcrypt";
 import { ErrorHandler } from "../utils/ErrorHandler.js";
 
 const register = async (req,res,next) => {
-    const {username,name,email,password,admin=false} = req?.body; 
+    try {
+        const {username,name,email,password,admin=false} = req?.body; 
 
-    if(!username || !name || !email || !password) 
-        return next(new ErrorHandler("All fields are required",400));
+        if(!username || !name || !email || !password) 
+            return next(new ErrorHandler("All fields are required",400));
 
-    const {path} = req.file;
+        const {path} = req.file;
 
-    if(!path) 
-        return next(new ErrorHandler("Avatar is required",400));
+        if(!path) 
+            return next(new ErrorHandler("Avatar is required",400));
 
-    const cloudinary_file = await uploadOnCloudinary(path);
+        const cloudinary_file = await uploadOnCloudinary(path);
 
-    if(!cloudinary_file)
-        return next(new ErrorHandler("Something wrong in Cloudinary",500));
+        if(!cloudinary_file)
+            return next(new ErrorHandler("Something wrong in Cloudinary",500));
 
-    const {url:avatar} = cloudinary_file;
+        const {url:avatar} = cloudinary_file;
 
-    if(!avatar)
-        return next(new ErrorHandler("Something wrong in Cloudinary",500));
+        if(!avatar)
+            return next(new ErrorHandler("Something wrong in Cloudinary",500));
 
-    const user = await User.create({username,name,email,password,avatar,admin});
+        const user = await User.create({username,name,email,password,avatar,admin});
 
-    if(!user)
-        return next(new ErrorHandler("Something wrong in User Creation",500));
+        if(!user)
+            return next(new ErrorHandler("Something wrong in User Creation",500));
 
-    return sendResponse(res,200,"User Created",true,user,"");
+        return sendResponse(res,200,"User Created",true,user,"");
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
+    }   
 }
 
 const login = async (req,res,next) => {  
-    const {email,password,admin=false} = req?.body; 
+    try {
+        const {email,password,admin=false} = req?.body; 
 
-    if(!email || !password) 
-        return next(new ErrorHandler("All fields are required",400));
+        if(!email || !password) 
+            return next(new ErrorHandler("All fields are required",400));
 
-    const user = await User.findOne({email,admin}).select("-createdAt -updatedAt -__v").lean();
+        const user = await User.findOne({email,admin}).select("-createdAt -updatedAt -__v").lean();
 
-    if(!user)   
-        return next(new ErrorHandler("User not found",404));
+        if(!user)   
+            return next(new ErrorHandler("User not found",404));
 
-    const isMatched = await bcrypt.compare(password,user.password);
+        const isMatched = await bcrypt.compare(password,user.password);
 
-    if(!isMatched)
-        return next(new ErrorHandler("Wrong Password",400));
+        if(!isMatched)
+            return next(new ErrorHandler("Wrong Password",400));
 
-    const token = await jwt.sign({_id:user._id,username:user.username,email:user.email,name:user.name,avatar:user.avatar,admin:user.admin},process.env.JWT_SECRET);
+        const token = await jwt.sign({_id:user._id,username:user.username,email:user.email,name:user.name,avatar:user.avatar,admin:user.admin},process.env.JWT_SECRET);
 
-    if(!token)
-        return next(new ErrorHandler("Something wrong in Token Generation",500));
+        if(!token)
+            return next(new ErrorHandler("Something wrong in Token Generation",500));
 
-    return sendResponse(res,200,"Login Success",true,user,token,user.admin);
+        return sendResponse(res,200,"Login Success",true,user,token,user.admin);
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
+    }
 }
 
 const getUser = async (req,res,next) => {
-    if(!req.user && !req.admin)
-        return next(new ErrorHandler("User not found",404));
-
-    if(req.admin)
-    {
-        return sendResponse(res,200,"User Found",true,req.admin,"");
-    }
-    else
-    {
-        return sendResponse(res,200,"User Found",true,req.user,"");
-    }
+    try {
+        if(!req.user && !req.admin)
+            return next(new ErrorHandler("User not found",404));
     
+        if(req.admin)
+        {
+            return sendResponse(res,200,"User Found",true,req.admin,"");
+        }
+        else
+        {
+            return sendResponse(res,200,"User Found",true,req.user,"");
+        }
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
+    }
 }
 
 const logout = async (req,res,next) => {
-    if(!req.user && !req.admin)
-    {
-        return next(new ErrorHandler("User not found",404));
-    }
-
-    if(req.admin)
-    {
+    try {
+        if(!req.user && !req.admin)
+        {
+            return next(new ErrorHandler("User not found",404));
+        }
+    
+        if(req.admin)
+        {
+            return res
+            .status(200)
+            .clearCookie("adminToken")
+            .json({success:true,message:"Logout Success"});
+        }
         return res
         .status(200)
-        .clearCookie("adminToken")
+        .clearCookie("userToken")
         .json({success:true,message:"Logout Success"});
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
     }
-    return res
-    .status(200)
-    .clearCookie("userToken")
-    .json({success:true,message:"Logout Success"});
 }
 
 const getAllUsers = async (req,res,next) => {
-    if(!req.admin && !req.user)
-        return next(new ErrorHandler("Please Login!",404));
-
-    const users = await User.find().select("-createdAt -updatedAt -__v").lean();    
-
-    if(!users)
-        return next(new ErrorHandler("Users not found",404));
-
-    return sendResponse(res,200,"Users Found",true,users,"");
+    try {
+        if(!req.admin && !req.user)
+            return next(new ErrorHandler("Please Login!",404));
+    
+        const users = await User.find().select("-createdAt -updatedAt -__v").lean();    
+    
+        if(!users)
+            return next(new ErrorHandler("Users not found",404));
+    
+        return sendResponse(res,200,"Users Found",true,users,"");
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
+    }
 }
 
 export {

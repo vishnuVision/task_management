@@ -38,7 +38,7 @@ function CommentDeleteDialog({visible = false, setVisible, comment,refreshData})
     if (visible)
         return (
             <>
-                <div className="relative z-10">
+                <div className="relative z-40">
                     <div className="fixed inset-0 bg-slate-600 bg-opacity-30 transition-opacity"></div>
                     <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
@@ -59,8 +59,8 @@ function CommentDeleteDialog({visible = false, setVisible, comment,refreshData})
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                    <button onClick={handleDelete} disabled={isDisable}  type="button" className="mt-3 inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset hover:bg-blue-500 sm:mt-0 sm:w-auto">Delete</button>
-                                    <button onClick={() => setVisible(false)} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-gray-100 sm:ml-3 sm:w-auto me-2">Cancel</button>
+                                <button onClick={handleDelete} disabled={isDisable}  type="button" className="mt-3 inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset hover:bg-blue-500 sm:mt-0 sm:w-auto">Delete</button>
+                                <button onClick={() => setVisible(false)} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-gray-100 sm:ml-3 sm:w-auto me-2">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -68,6 +68,7 @@ function CommentDeleteDialog({visible = false, setVisible, comment,refreshData})
                 </div>
             </>
         )
+
 }
 
 CommentDeleteDialog.propTypes = {

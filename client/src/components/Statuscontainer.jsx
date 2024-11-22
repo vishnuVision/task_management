@@ -10,7 +10,7 @@ function Statuscontainer({ title="",length=0,todoList=[] }) {
   },[todoList])
   
   return (
-    <div className="flex flex-col flex-grow">
+    <div className="flex flex-col flex-grow max-w-lg bg-gradient-to-b from-slate-100 mt-5 px-4">  
       <div className="flex justify-center gap-3 p-4">
         <p>{title}</p>
         <p className="bg-slate-200 rounded-full px-2">{length}</p>

@@ -7,6 +7,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../features.jsx/Pagination";
 import { useSelector } from "react-redux";
 import getDetails from "../context/useContext";
+// import { assignComments, assignNotification, assignSubTask } from "../redux/slices/notificationReducer";
 
 function UserTodos() {
     const { admin } = useSelector(state => state.authReducer.user);
@@ -18,6 +19,37 @@ function UserTodos() {
     const [inProgressList, setInProgressList] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
     const navigate = useNavigate();
+    // const socket = useSelector(state=>state.notificationReducer.socket) || null;
+    // const dispatch = useDispatch();
+
+    // console.log(socket)
+
+    // useEffect(() => {
+    //     console.log(socket);
+    //     if(socket)
+    //     {
+    //         socket.on("NEW_COMMENT", (data) => {
+    //             dispatch(assignComments(data));
+    //           });
+          
+    //           socket.on("NEW_SUBTASK", (data) => {
+    //             dispatch(assignSubTask(data));
+    //           })
+          
+    //           socket.on("NEW_NOTIFICATION", (data) => {
+    //             dispatch(assignNotification(data))
+    //           })
+    //     }
+        
+    //     return () => {
+    //         if(socket)
+    //         {
+    //             socket.off("NEW_COMMENT");
+    //             socket.off("NEW_SUBTASK");
+    //             socket.off("NEW_NOTIFICATION");
+    //         }
+    //     }
+    //   }, [socket])
 
     useEffect(() => {
         if (!admin) {
@@ -45,7 +77,7 @@ function UserTodos() {
             if (response?.data) {
                 const { data, success } = response.data;
                 if (success) {
-                    setUsers(data);
+                    setUsers(data.filter(({admin})=>admin===false));
                 }
             }
         } catch (error) {
@@ -88,7 +120,7 @@ function UserTodos() {
     return (
         <getDetails.Provider value={{ completedList, inCompletedList, inProgressList, refreshData: getUserTodos, page, setPage ,users }}>
             <div className="h-screen w-full flex flex-row">
-                <div className={`bg-slate-100 md:block w-64 h-screen overflow-y-scroll ${isMobile ? "fixed top-0 z-50 block" : "hidden"}`}>
+                <div className={`bg-slate-100 fixed md:block w-64 h-screen overflow-y-scroll ${isMobile ? "fixed top-0 z-50 block" : "hidden"}`}>
                     <div className="flex justify-end mx-4 mb-4 mt-2">
                         <button className={isMobile ? "text-4xl" : "hidden"} onClick={() => setIsMobile(false)}>
                             <i className="fa-solid fa-xmark"></i>
@@ -105,7 +137,7 @@ function UserTodos() {
                         <i className="fa-solid fa-bars"></i>
                     </button>
                 </div>
-                <div className="flex flex-col flex-grow p-4">
+                <div className="flex flex-col flex-grow p-4 ms-0 md:ms-64">
                     <div className="m-2">
                         <Link to={"/"} className="bg-slate-200 py-2 px-4 rounded-full"><i className="fa-solid fa-arrow-left"></i></Link>
                     </div>
@@ -118,7 +150,7 @@ function UserTodos() {
                     }
                     {
                         userId && (
-                            <div className="flex flex-wrap flex-grow">
+                            <div className="flex flex-wrap flex-grow gap-6">
                                 <Statuscontainer title="Completed" length={completedList.length} todoList={completedList} />
                                 <Statuscontainer title="InProgress" length={inProgressList.length} todoList={inProgressList} />
                                 <Statuscontainer title="InCompleted" length={inCompletedList.length} todoList={inCompletedList} />

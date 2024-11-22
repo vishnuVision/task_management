@@ -1,107 +1,139 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import toast from "react-hot-toast";
 import getDetails from "../context/useContext";
 import { getSocket } from "../context/socketContext";
+import { assignComments, assignNotification, assignSubTask } from "../redux/slices/notificationReducer";
+import { io } from "socket.io-client";
 
 function AppDashboard({ children }) {
 
-  const {user} = useSelector(state=>state.authReducer);
-  const [completedList,setCompletedList] = useState([]);
-  const [inCompletedList,setInCompletedList] = useState([]);
-  const [inProgressList,setInProgressList] = useState([]);
-  const [loading,setLoading] = useState(false);
-  const [loadMessage,setLoadMessage] = useState("");
-  const [page,setPage] = useState(1);
-  const [users,setUsers] = useState([]);
-  const { socket } = useContext(getSocket);
+  const { user } = useSelector(state => state.authReducer);
+  const [completedList, setCompletedList] = useState([]);
+  const [inCompletedList, setInCompletedList] = useState([]);
+  const [inProgressList, setInProgressList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadMessage, setLoadMessage] = useState("");
+  const [page, setPage] = useState(1);
+  const [users, setUsers] = useState([]);
+  const socket = useMemo(() => io(import.meta.env.VITE_SERVER_URL, { withCredentials: true }), []);
+  const dispatch = useDispatch();
 
-  const getTodos = async (page=1) => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/getTodos/${page}`,{withCredentials:true});  
-        if(response.data)
-        {
-          const {success,data} = response.data;
-          if(data.length === 0)
-          {
-            setLoadMessage("No more todos");
-            setPage(1);
-          }
-          else
-          {
-            setLoadMessage("");
-          }
-  
-          if(success)
-            {
-              setCompletedList(data?.filter(({ status }) => status === "COMPLETED"));
-              setInCompletedList(data?.filter(({ status }) => status === "INCOMPLETED"));
-              setInProgressList(data?.filter(({ status }) => status === "INPROGRESS"));
-            }
+  const getTodos = async (page = 1) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/getTodos/${page}`, { withCredentials: true });
+      if (response.data) {
+        const { success, data } = response.data;
+        if (data.length === 0) {
+          setLoadMessage("No more todos");
+          setPage(1);
         }
-      } catch (error) {
-        if(!error?.response?.data?.success)
-        {
-          toast.error(error.response.data.message);
+        else {
+          setLoadMessage("");
+        }
+
+        if (success) {
+          setCompletedList(data?.filter(({ status }) => status === "COMPLETED"));
+          setInCompletedList(data?.filter(({ status }) => status === "INCOMPLETED"));
+          setInProgressList(data?.filter(({ status }) => status === "INPROGRESS"));
         }
       }
+    } catch (error) {
+      if (!error?.response?.data?.success) {
+        toast.error(error.response.data.message);
+      }
+    }
     setLoading("");
   }
 
   const getAllUser = async () => {
     try {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/getallusers`, {
-            withCredentials: true,
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-        if (response?.data) {
-            const { data, success } = response.data;
-            if (success) {
-                setUsers(data);
-            }
+      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/getallusers`, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json"
         }
+      });
+      if (response?.data) {
+        const { data, success } = response.data;
+        if (success) {
+          setUsers(data);
+        }
+      }
     } catch (error) {
-        if (!error?.response?.data?.success) {
-            toast.error(error.response.data.message);
-        }
+      if (!error?.response?.data?.success) {
+        toast.error(error.response.data.message);
+      }
     }
   }
 
-  useEffect(()=>{
-    getAllUser();
-  },[])
+  const getAllNotification = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/notification`, { withCredentials: true });
+      if (response.data) {
+        const { success, data } = response.data;
+        if (success && data.length > 0) {
+          data.map((notification) => {
+            dispatch(assignNotification(notification))
+          });
+        }
+      }
+    } catch (error) {
+      if (!error?.response?.data?.success) {
+        toast.error(error.response.data.message);
+      }
+    }
+  }
 
-  useEffect(()=>{
-    if(user)
-    {
+  useEffect(() => {
+    getAllUser();
+    getAllNotification();
+  }, [])
+
+  useEffect(() => {
+    if (user) {
       getTodos();
     }
-  },[user])
+  }, [user])
 
-  useEffect(()=>{
+  useEffect(() => {
+    socket.on("connect");
     socket.on("NEW_COMMENT", (data) => {
-          console.log(data);
+      dispatch(assignComments(data));
     });
-  },[socket])
+
+    socket.on("NEW_SUBTASK", (data) => {
+      dispatch(assignSubTask(data));
+    })
+
+    socket.on("NEW_NOTIFICATION", (data) => {
+      dispatch(assignNotification(data))
+    })
+
+    return () => {
+      socket.off("NEW_COMMENT");
+      socket.off("NEW_SUBTASK");
+      socket.off("NEW_NOTIFICATION");
+      socket.on("disconnect");
+    }
+  }, [socket])
 
   return (
-    <getDetails.Provider value={{refreshData:getTodos,completedList,inCompletedList,inProgressList,loading,setLoading,loadMessage,page,setPage,users}}>
-      <div className="flex flex-grow">
-        <Sidebar />
-        <div className="w-screen sm:w-full">
-          <div className="flex flex-col h-full flex-grow overflow-x-hidden overflow-y-auto flex-wrap">
-              <Topbar />
-              {children}
-          </div> 
+    <getSocket.Provider value={{ socket }}>
+      <getDetails.Provider value={{ refreshData: getTodos, completedList, inCompletedList, inProgressList, loading, setLoading, loadMessage, page, setPage, users }}>
+        <div className="flex flex-col">
+          <Topbar />
+          <div className="flex flex-row h-full overflow-x-hidden overflow-y-auto">
+            <Sidebar />
+            {children}
+          </div>
         </div>
-      </div>
-    </getDetails.Provider>
+      </getDetails.Provider>
+    </getSocket.Provider>
   );
 }
 

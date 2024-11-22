@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react"
 import getDetails from "../context/useContext";
 import toast from "react-hot-toast";
 import MultiSelect from "../components/MultiSelect";
+import Input from "../components/Input";
 
 function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {}, mode="todo",id, refreshSubTodoData}) {
     const [title, setTitle] = useState("");
@@ -223,29 +224,18 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
 
     return (
         <>
-            <div className="relative z-10">
+            <div className="relative z-40">
                 <div className="fixed inset-0 bg-slate-500 bg-opacity-30 transition-opacity"></div>
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
                         <div className="relative transform pb-2 rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                            <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                                <div className="">
+                            <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 rounded-lg">
+                                <div className="rounded-lg">
                                     <div className="mt-3  sm:ml-4 sm:mt-0 sm:text-left">
                                         <div className="mt-2">
                                             <form className="">
-                                                <h2 className="text-2xl font-bold text-center">{label}</h2>
-                                                <div className="mt-6">
-                                                    <label className="block text-sm font-medium text-gray-700">Title</label>
-                                                    <input
-                                                        type="text"
-                                                        name="title"
-                                                        value={title}
-                                                        onChange={(e) => setTitle(e.target.value)}
-                                                        required
-                                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                                    />
-                                                </div>
-
+                                                <h2 className="text-2xl font-bold text-center mb-6 border py-2 rounded-t-lg">{label}</h2>
+                                                <Input label="Title" type="text" name="title" placeholder="Enter Title" value={title} setValue={setTitle}/>
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">Description</label>
                                                     <textarea
@@ -256,7 +246,6 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
                                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                                     />
                                                 </div>
-
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">Status</label>
                                                     <select
@@ -271,7 +260,6 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
                                                         <option value="COMPLETED">Completed</option>
                                                     </select>
                                                 </div>
-
                                                 {
                                                     mode==="todo" && 
                                                     <div>
@@ -289,8 +277,6 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
                                                         </select>
                                                     </div>
                                                 }
-                                                
-
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700">Select Assignee</label>
                                                     <MultiSelect options={options} selectedOptions={selectedOptions} setSelectedOptions={setSelectedOptions} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers}/>

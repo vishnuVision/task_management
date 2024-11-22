@@ -1,7 +1,7 @@
 import mongoose,{ Schema, model } from "mongoose";
 const { models } = mongoose; 
 
-const commentSchema = new Schema({
+const notificationSchema = new Schema({
     text:{
         type: String,
     },
@@ -9,19 +9,22 @@ const commentSchema = new Schema({
         type: String
     },
     owner:{
-        type: Schema.Types.ObjectId,
-        required: [true, "Owner is required"],
-        ref: "User"
+        username:String,
+        avatar:String,
+        admin:Boolean
     },
-    todo:{
+    receiver:{
         type: Schema.Types.ObjectId,
-        required: [true, "Todo is required"], 
-        ref: "Todo"
+        required: [true, "Receiver is required"],
+        ref: "User"
     },
     show:{
         type:Boolean,
         default: false
+    },
+    message:{
+        type: String
     }
 },{timestamps: true});
 
-export const Comment = models.Comment || model("Comment", commentSchema);
+export const Notification = models.Notification || model("Notification", notificationSchema);

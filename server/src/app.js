@@ -9,7 +9,6 @@ import { v2 as cloudinary } from 'cloudinary';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { socketAuthenticator } from './middleware/socket.middleware.js';
-import exp from 'constants';
 
 const userSockets = new Map();
 
@@ -59,11 +58,22 @@ io.on("connection", (socket) => {
     {
         userSockets.set(socket.user._id.toString(),socket.id);
     }
-});
 
-io.on("disconnect", (socket) => {
-    userSockets.delete(socket.user._id.toString());
-})
+    socket.on("LOGOUT",()=>{
+        if(socket.user)
+        {
+            console.log("logout")
+            userSockets.delete(socket.user._id.toString());
+        }
+    })
+
+    socket.on("disconnect", () => {
+        if(socket.user)
+        {
+            userSockets.delete(socket.user._id.toString());
+        }
+    });
+});
 
 app.get("/",(req,res)=>{
     res.send("Hello World");

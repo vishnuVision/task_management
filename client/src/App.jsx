@@ -1,7 +1,7 @@
 import toast, { Toaster } from "react-hot-toast";
 import Home from "./pages/Home";
 import { BrowserRouter as Router,Routes,Route } from "react-router-dom";
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useEffect } from "react";
 import Loading from "./components/Loading";
 import AppDashboard from "./components/AppDashboard";
 import axios from "axios";
@@ -12,17 +12,8 @@ import ProtectedRouting from "./components/ProtectedRouting";
 import { useDispatch } from "react-redux";
 import { assignUser } from "./redux/slices/authReducer"
 import UserTodos from "./pages/UserTodos";
-import { io } from "socket.io-client";
-import { getSocket } from "./context/socketContext";
 
 function App() {
-  const socket = useMemo(() => io(import.meta.env.VITE_SERVER_URL,{withCredentials:true}),[]);
-
-  socket.on("connect", () => {
-    console.log("connected");
-  })
-
-
   const dispatch = useDispatch();
 
   const getUser = async () => { 
@@ -56,7 +47,7 @@ function App() {
   },[]) 
 
   return (
-    <getSocket.Provider value={{socket}}>
+    <>
       <Router>
         <Suspense fallback={<Loading/>}>
           <Routes>
@@ -72,7 +63,7 @@ function App() {
         </Suspense>
       </Router>
       <Toaster/>
-    </getSocket.Provider>
+    </>
   )
 }
 
