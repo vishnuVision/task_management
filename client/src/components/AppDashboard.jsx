@@ -112,6 +112,7 @@ function AppDashboard({ children }) {
 
     socket.on("NEW_NOTIFICATION", (data) => {
       dispatch(assignNotification(data))
+      getTodos();
     })
 
     return () => {

@@ -21,7 +21,7 @@ function TodoDashBoard() {
           <h1 className="text-lg md:text-2xl font-bold"><span className="text-red-400">Welcome, </span>{user?.name}</h1>
         </div>
       </div>  
-      <div className="flex flex-wrap justify-evenly mx-8 gap-4">
+      <div className="flex flex-wrap justify-evenly flex-grow mx-8 gap-4">
         <Statuscontainer title="Completed" length={completedList.length} todoList={completedList} />
         <Statuscontainer title="InProgress" length={inProgressList.length} todoList={inProgressList} />
         <Statuscontainer key={uuid()} title="InCompleted" length={inCompletedList.length} todoList={inCompletedList} />

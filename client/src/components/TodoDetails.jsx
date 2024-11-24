@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
-import CommentDeleteDialog from "../Dialog/commentDeleteDialog";
-import CommentUpdateDialog from "../Dialog/commentUpdateDialog";
+import CommentDeleteDialog from "../Dialog/CommentDeleteDialog";
+import CommentUpdateDialog from "../Dialog/CommentUpdateDialog";
 import TodoDialog from "../Dialog/TodoDialog";
 import TodoDeleteDialog from "../Dialog/TodoDeleteDialog";
 import { deassignComments } from "../redux/slices/notificationReducer";
@@ -176,7 +176,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask,comments ,refreshsub
                         <button onClick={() => { resetData(); setIsSideBar(false); }} className="text-2xl"><i className="fa-solid fa-arrow-right-to-bracket"></i></button>
                     </div>
                     <div className="flex flex-col p-2 px-4">
-                        <p className="text-lg font-bold">{todoData?.title}</p>
+                        <p className="text-lg font-bold mt-4">{todoData?.title}</p>
                         <div className="flex flex-col mt-8 gap-4">
                             <div className="flex gap-4 flex-row justify-between">
                                 <div className="font-semibold flex items-center">
@@ -275,8 +275,8 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask,comments ,refreshsub
                 <div className="border-t-[1px]  border-slate-200 p-4 flex flex-col justify-start gap-2">
                     <div className="flex gap-2 pt-4">
                         <div className="flex flex-col gap-2 justify-start">
-                            <img src={avatar} className="w-8 h-8 rounded-full border border-white" alt="User Avatar" />
-                            <button onClick={() => fileRef.current.click()} className="bg-slate-400 py-1 px-2 rounded-full">
+                            <img src={avatar} className="w-10 h-10 rounded-full border border-white cursor-pointer" alt="User Avatar" />
+                            <button onClick={() => fileRef.current.click()} className="bg-slate-400 py-2 px-2 rounded-full">
                                 {
                                     image && <i className="fa-solid fa-file"></i>
                                 }
@@ -285,11 +285,11 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask,comments ,refreshsub
                                 }
                             </button>
                         </div>
-                        <textarea value={text} onChange={(e) => setText(e.target.value)} className="border border-slate-600 h-24 px-2 rounded-md flex-grow" type="text" placeholder="Add Comment" />
+                        <textarea value={text} onChange={(e) => setText(e.target.value)} className="border border-slate-600 h-24 px-2 py-2 rounded-md flex-grow" type="text" placeholder="Add Comment" />
                         <input onChange={(e) => setImage(e.target.files[0])} className="hidden" type="file" ref={fileRef} />
                     </div>
                     <div className="flex justify-end">
-                        <button onClick={createComment} className="bg-green-400 py-1 px-2 rounded-xl mt-1">comment</button>
+                        <button onClick={createComment} className="bg-green-400 py-2 font-semibold hover:bg-green-500 px-4 text-lg rounded-xl mt-1">comment</button>
                     </div>
                 </div>
             </div>

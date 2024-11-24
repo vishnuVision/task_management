@@ -114,10 +114,11 @@ function Topbar() {
                       <div className="relative">
                         <div className="flex flex-col justify-center ">
                           <div className="w-full flex justify-center pt-4 pb-2">
-                            <img className="w-10 h-10 rounded-full" src={user?.avatar} alt="User Avatar" />
+                            <img className="w-20 h-20 rounded-full" src={user?.avatar} alt="User Avatar" />
                           </div>
                           <div className="flex flex-col items-center justify-center">
                             <p className="text-black text-center text-lg font-bold px-2 rounded flex gap-2 items-center"><i className="fa-solid fa-user"></i> My Profile</p>
+                            <p className="text-black text-center px-2 rounded font-bold text-lg">{user?.name}</p>
                             <p className="text-black text-center px-2 rounded">{user?.email}</p>
                           </div>
                           <div className="hover:bg-slate-200 py-1 px-2 border-t-2 mt-2">
