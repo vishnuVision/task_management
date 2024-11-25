@@ -39,6 +39,10 @@ function Pagination({page,setPage,completedList=[],inCompletedList=[],inProgress
         }
     }
 
+    const handlePagination = (page) => {
+      setPage(page);
+    }
+
   return (
     <div>
         <div className="flex justify-center my-2">
@@ -50,13 +54,13 @@ function Pagination({page,setPage,completedList=[],inCompletedList=[],inProgress
               </svg>
             </button>
 
-            <a href="#" aria-current="page" className={`${page === start ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold  ring-1 ring-inset ring-gray-300`}>{start}</a>
-            <a href="#" className={`${page === start+1 ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{start+1}</a>
-            <a href="#" className={`${page === start+2 ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{start+2}</a>
+            <button onClick={()=>handlePagination(start)} href="#" aria-current="page" className={`${page === start ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold  ring-1 ring-inset ring-gray-300`}>{start}</button>
+            <button onClick={()=>handlePagination(start+1)} className={`${page === start+1 ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{start+1}</button>
+            <button onClick={()=>handlePagination(start+2)} className={`${page === start+2 ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{start+2}</button>
             <span className="relative inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">...</span>
-            <a href="#" className={`${page === end-2 ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{end-2}</a>
-            <a href="#" className={`${page === end-1 ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{end-1}</a>
-            <a href="#" className={`${page === end ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{end}</a>
+            <button onClick={()=>handlePagination(end-2)} className={`${page === end-2 ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{end-2}</button>
+            <button onClick={()=>handlePagination(end-1)} className={`${page === end-1 ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{end-1}</button>
+            <button onClick={()=>handlePagination(end)} className={`${page === end ? "bg-indigo-600 text-white" : "text-gray-900"} inline-flex items-center px-2 py-1 sm:px-4 sm:py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300`}>{end}</button>
 
             <button onClick={increasePage} href="#" className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
               <span className="sr-only">Next</span>

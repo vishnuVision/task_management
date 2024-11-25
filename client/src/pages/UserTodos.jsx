@@ -1,12 +1,14 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import UserCard from "../components/UserCard";
 import Statuscontainer from "../components/Statuscontainer";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../features.jsx/Pagination";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import getDetails from "../context/useContext";
+import { io } from "socket.io-client";
+import { assignComments, assignNotification, assignSubTask } from "../redux/slices/notificationReducer";
 // import { assignComments, assignNotification, assignSubTask } from "../redux/slices/notificationReducer";
 
 function UserTodos() {
@@ -19,37 +21,38 @@ function UserTodos() {
     const [inProgressList, setInProgressList] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
     const navigate = useNavigate();
+    const socket = useMemo(() => io(import.meta.env.VITE_SERVER_URL, { withCredentials: true }), []);
     // const socket = useSelector(state=>state.notificationReducer.socket) || null;
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
     // console.log(socket)
 
-    // useEffect(() => {
-    //     console.log(socket);
-    //     if(socket)
-    //     {
-    //         socket.on("NEW_COMMENT", (data) => {
-    //             dispatch(assignComments(data));
-    //           });
+    useEffect(() => {
+        console.log(socket);
+        if(socket)
+        {
+            socket.on("NEW_COMMENT", (data) => {
+                dispatch(assignComments(data));
+              });
           
-    //           socket.on("NEW_SUBTASK", (data) => {
-    //             dispatch(assignSubTask(data));
-    //           })
+              socket.on("NEW_SUBTASK", (data) => {
+                dispatch(assignSubTask(data));
+              })
           
-    //           socket.on("NEW_NOTIFICATION", (data) => {
-    //             dispatch(assignNotification(data))
-    //           })
-    //     }
+              socket.on("NEW_NOTIFICATION", (data) => {
+                dispatch(assignNotification(data))
+              })
+        }
         
-    //     return () => {
-    //         if(socket)
-    //         {
-    //             socket.off("NEW_COMMENT");
-    //             socket.off("NEW_SUBTASK");
-    //             socket.off("NEW_NOTIFICATION");
-    //         }
-    //     }
-    //   }, [socket])
+        return () => {
+            if(socket)
+            {
+                socket.off("NEW_COMMENT");
+                socket.off("NEW_SUBTASK");
+                socket.off("NEW_NOTIFICATION");
+            }
+        }
+      }, [socket])
 
     useEffect(() => {
         if (!admin) {

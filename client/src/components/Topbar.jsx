@@ -80,7 +80,7 @@ function Topbar() {
                 <span>{notificationCount}</span>
               </div>
               {
-                notificationVisible && <Notification setVisible={setNotificationVisible} isMobile={isMobile}/>
+                notificationVisible && <Notification setVisible={setNotificationVisible} isMobile={isMobile} />
               }
             </div>
             {
@@ -117,7 +117,6 @@ function Topbar() {
                             <img className="w-20 h-20 rounded-full" src={user?.avatar} alt="User Avatar" />
                           </div>
                           <div className="flex flex-col items-center justify-center">
-                            <p className="text-black text-center text-lg font-bold px-2 rounded flex gap-2 items-center"><i className="fa-solid fa-user"></i> My Profile</p>
                             <p className="text-black text-center px-2 rounded font-bold text-lg">{user?.name}</p>
                             <p className="text-black text-center px-2 rounded">{user?.email}</p>
                           </div>

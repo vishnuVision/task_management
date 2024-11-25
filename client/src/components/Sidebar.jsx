@@ -20,7 +20,7 @@ function Sidebar() {
             user?.admin &&
             <div className="relative group">
               <Link className="text-2xl 2xl:text-2xl" to="/userTodo"><i className="fa-regular fa-user"></i></Link>
-              <div className="absolute z-10 left-3/4 transform -translate-x-1 -bottom-1 mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute z-10 left-3/4 transform -translate-x-1 top-10 mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 Get User Todos
               </div>
             </div>

@@ -10,10 +10,10 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { deassignSubTask } from "../redux/slices/notificationReducer";
 
-function Todocard({ _id = "", title = "", description = "", priority = "", status = "", owner = [] }) {
+function Todocard({ _id = "", title = "", description = "", priority = "", status = "", owner = []}) {
   const { admin: isAdmin } = useSelector(state => state?.authReducer?.user);
   const { users } = useContext(getDetails);
-  const { comments,subTodo } = useSelector(state=>state.notificationReducer);
+  const { comments, subTodo } = useSelector(state => state.notificationReducer);
   const dispatch = useDispatch();
 
   // dialog state
@@ -25,9 +25,9 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
   const [isSideBar, setIsSideBar] = useState(false);
   const [showSubTask, setShowSubTask] = useState(false);
   const [subTask, setSubTask] = useState(false);
-  const [commentCount,setCommentCount] = useState(0);
-  const [subTaskCount,setSubTaskCount] = useState(0);
-  const [commentsList,setCommentsList] = useState([]);
+  const [commentCount, setCommentCount] = useState(0);
+  const [subTaskCount, setSubTaskCount] = useState(0);
+  const [commentsList, setCommentsList] = useState([]);
 
   const getSubTasks = async () => {
     try {
@@ -56,30 +56,30 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
 
   const getComments = async () => {
     try {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/comments/${_id}`, {
-            withCredentials: true,
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-
-        if (response.data) {
-            const { success, message, data } = response.data;
-
-            if (success) {
-                setCommentsList(data);
-                // setCommentCount(data.filter(({show})=>show===false).length);
-            }
-            else {
-                toast.error(message);
-            }
+      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/comments/${_id}`, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json"
         }
+      })
+
+      if (response.data) {
+        const { success, message, data } = response.data;
+
+        if (success) {
+          setCommentsList(data);
+          // setCommentCount(data.filter(({show})=>show===false).length);
+        }
+        else {
+          toast.error(message);
+        }
+      }
     } catch (error) {
-        if (!error?.response?.data?.success) {
-            toast.error(error.response.data.message);
-        }
+      if (!error?.response?.data?.success) {
+        toast.error(error.response.data.message);
+      }
     }
-}
+  }
 
   useEffect(() => {
     const userDetails = owner.map((id) => {
@@ -91,43 +91,35 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
     getComments();
   }, [])
 
-  useEffect(()=>{
-    if(comments.length > 0)
-    {
-      const data = comments.filter(({todo})=>todo === _id);
-      if(data.length > 0)
-      {
+  useEffect(() => {
+    if (comments.length > 0) {
+      const data = comments.filter(({ todo }) => todo === _id);
+      if (data.length > 0) {
         setCommentCount(data.length);
       }
-      else
-      {
+      else {
         setCommentCount(0);
       }
     }
-    else
-    {
+    else {
       setCommentCount(0);
     }
-  },[comments])
+  }, [comments])
 
-  useEffect(()=>{
-    if(subTodo.length > 0)
-    {
-      const data = subTodo.filter(({todo})=>todo === _id);
-      if(data.length > 0)
-      {
+  useEffect(() => {
+    if (subTodo.length > 0) {
+      const data = subTodo.filter(({ todo }) => todo === _id);
+      if (data.length > 0) {
         setSubTaskCount(data.length);
       }
-      else
-      {
+      else {
         setSubTaskCount(0);
       }
     }
-    else
-    {
+    else {
       setSubTaskCount(0);
     }
-  },[subTodo])
+  }, [subTodo])
 
   useEffect(() => {
     if (showSubTask) {
@@ -137,7 +129,7 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
 
   return (
     <>
-      <div className={`w-full box-content border border-slate-200 z-0 hover:border-slate-700 hover:z-0 hover:shadow-xl rounded-lg px-4 py-2 ${priority === "LOW" ? "bg-blue-100" : ""} ${priority === "MEDIUM" ? "bg-red-100" : ""} ${priority === "HIGH" ? "bg-green-100 " : ""}`}>
+      <div className={`w-full box-content border border-slate-200 z-0 hover:border-slate-700 hover:z-0 hover:shadow-xl rounded-lg px-4 py-2 ${priority === "LOW" ? "bg-red-100" : ""} ${priority === "MEDIUM" ? "bg-blue-100" : ""} ${priority === "HIGH" ? "bg-green-100 " : ""}`}>
         <div className="flex justify-between py-2 px-1 border-b-[1px] border-slate-300 mb-1">
           <div className="flex">
             <p className="text-sm font-bold">{priority}</p>
@@ -161,7 +153,7 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
           }
         </div>
         <div>
-          <div onClick={() => setIsSideBar(prev => !prev)}>
+          <div className="cursor-pointer" onClick={() => setIsSideBar(prev => !prev)}>
             <div className="flex flex-wrap gap-2">
               <p className="font-bold">{title}</p>
             </div>
@@ -178,12 +170,12 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
               }
             </div>
           </div>
-          <div className="flex flex-row-reverse gap-4">
-            <div onClick={() => setIsSideBar(prev => !prev)} className="relative group">
+          <div className="flex flex-row-reverse">
+            <div onClick={() => setIsSideBar(prev => !prev)} className="relative group py-2 px-2">
               <button className="text-2xl"><i className="fa-regular fa-comment"></i></button>
               {
-                commentCount > 0 && 
-                <div className="absolute cursor-pointer -top-2 left-2 z-10 bg-red-500 px-[6px] rounded-full">
+                commentCount > 0 &&
+                <div className="absolute cursor-pointer top-0 left-4 z-10 bg-red-500 px-[6px] rounded-full">
                   <span>{commentCount}</span>
                 </div>
               }
@@ -191,15 +183,15 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
                 Comment
               </div>
             </div>
-            <div className="relative group z-20">
+            <div className="relative group z-20 py-2 px-2">
               <button onClick={() => setShowSubTask(prev => !prev)} className="text-2xl">
                 {
                   showSubTask ? <i className="fa-solid fa-angle-up"></i> : <i className="fa-solid fa-angle-down"></i>
                 }
               </button>
               {
-                subTaskCount > 0 && 
-                <div className="absolute cursor-pointer bottom-0 -translate-y-[2px] -left-4">
+                subTaskCount > 0 &&
+                <div className="absolute cursor-pointer bottom-2 -translate-y-[2px] -left-1">
                   <span>{subTaskCount}</span>
                 </div>
               }
@@ -209,12 +201,12 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
             </div>
           </div>
           {
-            showSubTask && <SubTask subTask={subTask} visible={visibleSubTask} setVisible={setVisibleSubTask} color={priority === "LOW" ? "blue" : priority === "MEDIUM" ? "red" : "green"}/>
+            showSubTask && <SubTask subTask={subTask} visible={visibleSubTask} setVisible={setVisibleSubTask} color={priority === "LOW" ? "blue" : priority === "MEDIUM" ? "red" : "green"} />
           }
         </div>
       </div>
       {
-        isSideBar && <TodoDetails todoData={{ id: _id, title, description, priority, status, avatar }} isSideBar={isSideBar} setIsSideBar={setIsSideBar} subTask={subTask} comments={commentsList} getComments={getComments} refreshsubTask={getSubTasks}/>
+        isSideBar && <TodoDetails todoData={{ id: _id, title, description, priority, status, avatar }} isSideBar={isSideBar} setIsSideBar={setIsSideBar} subTask={subTask} comments={commentsList} getComments={getComments} refreshsubTask={getSubTasks} />
       }
       {
         visible && <TodoDialog setVisible={setVisible} label={"Update New Todo"} type="update" todo={{ _id, title, description, priority, status, owner }} />
@@ -240,7 +232,9 @@ Todocard.propTypes = {
   setVisible: PropTypes.any,
   deleteVisible: PropTypes.bool,
   setDeleteVisible: PropTypes.any,
-  owner: PropTypes.array
+  owner: PropTypes.array,
+  isSideBar:PropTypes.bool,
+  setIsSideBar:PropTypes.any
 }
 
 export default Todocard

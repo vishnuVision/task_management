@@ -2,8 +2,9 @@ import PropTypes from "prop-types"
 import { useSelector } from "react-redux";
 
 function SubTask({subTask=[],setVisible,color}) {
-    console.log(color);
     const {admin:isAdmin} = useSelector(state=>state?.authReducer?.user);
+
+    console.log(subTask);
 
   return (
     <div className="mt-4">

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Todocard from "./Todocard";
 import PropTypes from "prop-types";
 
-function Statuscontainer({ title="",length=0,todoList=[] }) {
+function Statuscontainer({ title="",length=0,todoList=[],isSideBar,setIsSideBar }) {
   const [updatedToDoist,setUpdatedToDoList]= useState([]);
 
   useEffect(()=>{
@@ -10,7 +10,7 @@ function Statuscontainer({ title="",length=0,todoList=[] }) {
   },[todoList])
   
   return (
-    <div className="flex flex-col flex-grow max-w-lg bg-gradient-to-b from-slate-100 mt-5 px-4">  
+    <div className={`flex flex-col flex-grow max-w-lg ${length === 0 ? "bg-gradient-to-b from-slate-100" :""} mt-5 px-4`}>  
       <div className="flex justify-center gap-3 p-4">
         <p>{title}</p>
         <p className="bg-slate-200 rounded-full px-2">{length}</p>
@@ -25,7 +25,7 @@ function Statuscontainer({ title="",length=0,todoList=[] }) {
         {
           updatedToDoist && updatedToDoist.length > 0 &&  updatedToDoist.map(({_id,title,description,priority,status,owner},idx)=>(
             <>
-              <Todocard key={idx} _id={_id} title={title} description={description} priority={priority} status={status} owner={owner}/>
+              <Todocard key={idx} _id={_id} title={title} description={description} priority={priority} status={status} owner={owner} isSideBar={isSideBar} setIsSideBar={setIsSideBar}  />
             </>
           ))
         }
@@ -37,7 +37,9 @@ function Statuscontainer({ title="",length=0,todoList=[] }) {
 Statuscontainer.propTypes = {
   title:PropTypes.string,
   length:PropTypes.number,
-  todoList:PropTypes.array
+  todoList:PropTypes.array,
+  isSideBar:PropTypes.bool,
+  setIsSideBar:PropTypes.any
 }
 
 export default Statuscontainer;

@@ -1,38 +1,71 @@
 import PropTypes from "prop-types"
+import { useEffect, useState } from "react"
+import TodoDialog from "../Dialog/TodoDialog";
 
-function SubTaskCard({ subTask, handleDeleteSubTask, handleUpdateSubTask, isAdmin }) {
+function SubTaskCard({ subTask, handleDeleteSubTask, handleUpdateSubTask, isAdmin, getSubTask }) {
+    const [isDrop, setIsDrop] = useState(false);
+    const [isVisible,setIsVisible] = useState(false);
+
+    // console.log(subTask);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsDrop(false);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [isDrop])
+
     return (
         <div>
-            <div className="flex flex-wrap gap-2 items-center hover:bg-slate-200 p-2">
-                <div className="flex -space-x-4 mt-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center p-2 hover:bg-slate-200">
+                <div className="flex flex-grow items-center justify-between">
+                    <div className="flex -space-x-4 mt-2 items-center">
+                        {
+                            subTask?.owner && subTask?.owner.length > 0 && subTask?.owner.map(({ avatar }, idx) => (
+                                <div key={idx} className="relative group">
+                                    <img src={avatar} className="w-10 h-10 rounded-full border-2 border-black" alt="User Avatar" />
+                                </div>
+                            ))
+                        }
+                    </div>
                     {
-                        subTask?.owner && subTask?.owner.length > 0 && subTask?.owner.map(({ avatar }, idx) => (
-                            <div key={idx} className="relative group">
-                                <img src={avatar} className="w-10 h-10 rounded-full border-2 border-black" alt="User Avatar" />
+                        isAdmin &&
+                        <div className="">
+                            <div onClick={() => setIsDrop((prev) => !prev)} className="relative group">
+                                <i className="fa-solid fa-chevron-down hover:bg-slate-200 p-2 rounded-full"></i>
+                                <div className="absolute z-40 transform right-0 bottom-full mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ">
+                                    Show Options
+                                </div>
                             </div>
-                        ))
+
+                            {
+                                isDrop &&
+                                <div className="relative">
+                                    <div className="absolute z-10 w-40 bg-white transform right-0 top-1 mb-2 text-black text-sm rounded-md shadow-lg duration-300">
+                                        <div className="flex flex-col justify-center">
+                                            <div onClick={() => setIsVisible(prev => !prev)} className="hover:bg-slate-200 px-3 py-2 cursor-pointer">
+                                                Add Subtask
+                                            </div>
+                                            <div onClick={() => handleUpdateSubTask(subTask)} className="hover:bg-slate-200 px-3 py-2 cursor-pointer">
+                                                Edit Subtask
+                                            </div>
+                                            <div onClick={() => handleDeleteSubTask(subTask?._id)} className="hover:bg-slate-200 px-3 py-2 cursor-pointer">
+                                                Delete Subtask
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
                 <p className="break-words w-full">{subTask?.title}</p>
-                {
-                    isAdmin &&
-                    <div className="flex w-full flex-row-reverse gap-4">
-                        <div className="relative group">
-                            <button onClick={() => handleDeleteSubTask(subTask?._id)} className="text-lg"><i className="fa-solid fa-trash"></i></button>
-                            <div className="absolute z-10  transform -translate-x-6 bottom-full mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                Delete
-                            </div>
-                        </div>
-                        <div className="relative group">
-                            <button onClick={() => handleUpdateSubTask(subTask)} className="text-lg"><i className="fa-solid fa-pen-to-square"></i></button>
-                            <div className="absolute z-10  transform -translate-x-6 bottom-full mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                Update
-                            </div>
-                        </div>
-                    </div>
-                }
             </div>
+            {
+                isVisible && <TodoDialog visible={isVisible} setVisible={setIsVisible} label={"Add New Subtask"} id={subTask?._id} mode="subTask" refreshSubTodoData={getSubTask} />
+            }
         </div>
+
     )
 }
 
@@ -40,6 +73,7 @@ SubTaskCard.propTypes = {
     subTask: PropTypes.object,
     handleDeleteSubTask: PropTypes.func,
     handleUpdateSubTask: PropTypes.func,
+    getSubTask:PropTypes.func,
     isAdmin: PropTypes.bool
 }
 

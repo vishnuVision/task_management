@@ -16,6 +16,7 @@ function AppDashboard({ children }) {
   const [completedList, setCompletedList] = useState([]);
   const [inCompletedList, setInCompletedList] = useState([]);
   const [inProgressList, setInProgressList] = useState([]);
+  const [todoList, setTodoList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadMessage, setLoadMessage] = useState("");
   const [page, setPage] = useState(1);
@@ -37,6 +38,7 @@ function AppDashboard({ children }) {
         }
 
         if (success) {
+          setTodoList(data);
           setCompletedList(data?.filter(({ status }) => status === "COMPLETED"));
           setInCompletedList(data?.filter(({ status }) => status === "INCOMPLETED"));
           setInProgressList(data?.filter(({ status }) => status === "INPROGRESS"));
@@ -125,7 +127,7 @@ function AppDashboard({ children }) {
 
   return (
     <getSocket.Provider value={{ socket }}>
-      <getDetails.Provider value={{ refreshData: getTodos, completedList, inCompletedList, inProgressList, loading, setLoading, loadMessage, page, setPage, users }}>
+      <getDetails.Provider value={{ refreshData: getTodos, completedList, inCompletedList, inProgressList, loading, setLoading, loadMessage, page, setPage, users,todoList }}>
         <div className="flex flex-col">
           <Topbar />
           <div className="flex flex-row h-full overflow-x-hidden overflow-y-auto">

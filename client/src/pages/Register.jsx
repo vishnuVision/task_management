@@ -44,7 +44,7 @@ function Register({admin=false}) {
 
           if(success)
           {
-            toast.success(message, {id:toastId});
+            toast.success(message+" please Login", {id:toastId});
             navigate("/login");
           }
           else
