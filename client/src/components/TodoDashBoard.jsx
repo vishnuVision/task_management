@@ -106,8 +106,8 @@ function TodoDashBoard() {
           <h1 className="text-lg md:text-2xl font-bold"><span className="text-red-400">Welcome, </span>{user?.name}</h1>
         </div>
       </div>
-      <div className="border-b-[1px] border-black mt-2 mx-2 relative">
-        <div className="mx-4 flex font-semibold gap-4 text-black">
+      <div className="border-b-[1px] border-black mt-2 mx-6 relative">
+        <div className=" flex font-semibold gap-4 text-black ms-4">
           <div onClick={() => setIsList(true)} className={`flex items-center gap-1 cursor-pointer ${isList ? "border-b-2 border-black" : ""}`}>
             <i className="fa-solid fa-list-ul"></i>
             <p>List</p>
