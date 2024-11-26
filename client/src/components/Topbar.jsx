@@ -8,6 +8,7 @@ import { assignUser } from "../redux/slices/authReducer";
 import { resetLocalData } from "../redux/slices/notificationReducer";
 import { useNavigate } from "react-router-dom";
 import { getSocket } from "../context/socketContext";
+import ProfileUpdate from "../Dialog/ProfileUpdate";
 
 function Topbar() {
   const [visible, setVisible] = useState(false);
@@ -19,6 +20,7 @@ function Topbar() {
   const { notification } = useSelector(state => state.notificationReducer);
   const [notificationCount, setNotificationCount] = useState(notification.length);
   const [isMobile, setIsMobile] = useState(false);
+  const [isProfileShow, setIsProfileShow] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -62,19 +64,15 @@ function Topbar() {
     }
   }
 
-  useEffect(() => {
-    console.log(isMobile)
-  }, [isMobile]);
-
   return (
     <>
-      <div className="flex flex-row bg-slate-900 text-white justify-between fixed w-full z-10">
-        <div className="flex justify-center items-center sm:text-lg text-md font-extrabold lg:text-md ms-4 py-4">
+      <div className="flex flex-row bg-[#2e2e30] text-white justify-between fixed w-full z-10">
+        <div className="flex justify-center items-center sm:text-lg text-md font-extrabold lg:text-md ms-4 py-2">
           Task manager
         </div>
         <div className={`md:flex md:flex-row ${isMobile ? "fixed top-0 right-0 z-50 bg-slate-900 w-full block" : "hidden"}`}>
           <div className="flex flex-row justify-between items-center">
-            <div onClick={() => setNotificationVisible(prev => !prev)} className={`relative group py-4 hover:bg-slate-700 px-6 cursor-pointer ${isMobile ? "" : "border-r-[1px] border-l-[1px] border-slate-300"}`}>
+            <div onClick={() => setNotificationVisible(prev => !prev)} className={`relative group hover:bg-slate-700 px-6 py-3 cursor-pointer ${isMobile ? "" : "border-r-[1px] border-l-[1px] border-slate-300"}`}>
               <button className="text-3xl"><i className="fa-regular fa-bell"></i></button>
               <div className="absolute cursor-pointer top-2 left-6 md:left-8 lg:left-9 z-10 bg-red-500 px-[6px] rounded-full">
                 <span>{notificationCount}</span>
@@ -91,12 +89,12 @@ function Topbar() {
           </div>
           {
             isAdmin &&
-            <div onClick={() => setVisible(prev => !prev)} className={`hover:bg-slate-700 py-4 px-6 flex justify-center items-center gap-2 ${isMobile ? "" : "border-r-[1px] border-slate-300"} cursor-pointer`}>
+            <div onClick={() => setVisible(prev => !prev)} className={`hover:bg-slate-700 py-3 px-6 flex justify-center items-center gap-2 ${isMobile ? "" : "border-r-[1px] border-slate-300"} cursor-pointer`}>
               <i className="fa-solid fa-plus text-xl"></i>
               <p className="font-semibold">Add Todo</p>
             </div>
           }
-          <div onClick={() => setShowMenu(prev => !prev)} className="hover:bg-slate-700 h-full py-4 px-6 relative z-20">
+          <div onClick={() => setShowMenu(prev => !prev)} className="hover:bg-slate-700 h-full py-3 px-6 relative z-20">
             <div className="flex flex-row justify-center items-center gap-3 cursor-pointer z-20">
               <div>
                 <img data-tooltip-target="tooltip-default" src={user?.avatar} className="w-10 h-10 z-0 rounded-full border border-white" alt="User Avatar" />
@@ -107,10 +105,10 @@ function Topbar() {
             {
               showMenu &&
               <div className="relative z-40">
-                <div className="fixed bg-slate-600 bg-opacity-30 transition-opacity"></div>
+                <div className="fixed bg-slate-600 bg-opacity-30 transition-all duration-300"></div>
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                   <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
-                    <div className={`absolute ${isMobile ? "top-36" : "top-16 right-10"} z-40  mb-2 w-72 shadow-lg bg-slate-50 hover:bg-slate-100  text-white text-sm rounded transition-opacity duration-300`}>
+                    <div className={`absolute ${isMobile ? "top-36" : "top-16 right-10"} z-40  mb-2 w-72 shadow-lg bg-slate-50  text-white text-sm rounded transition-opacity duration-300`}>
                       <div className="relative">
                         <div className="flex flex-col justify-center ">
                           <div className="w-full flex justify-center pt-4 pb-2">
@@ -120,7 +118,10 @@ function Topbar() {
                             <p className="text-black text-center px-2 rounded font-bold text-lg">{user?.name}</p>
                             <p className="text-black text-center px-2 rounded">{user?.email}</p>
                           </div>
-                          <div className="hover:bg-slate-200 py-1 px-2 border-t-2 mt-2">
+                          <div className="hover:bg-slate-100 py-1 px-2 border-t-[1px] mt-2">
+                            <button onClick={()=>setIsProfileShow(prev=>!prev)} className=" text-black text-lg font-bold py-1 px-2 rounded flex gap-2 items-center"><i className="fa-solid fa-user"></i> Edit Profile</button>
+                          </div>
+                          <div className="hover:bg-slate-100 py-1 px-2 border-t-[1px]">
                             <button onClick={logout} className=" text-black text-lg font-bold py-1 px-2 rounded flex gap-2 items-center"><i className="fa-solid fa-arrow-right"></i> Logout</button>
                           </div>
                         </div>
@@ -139,6 +140,9 @@ function Topbar() {
           </button>
         </div>
       </div>
+      {
+        isProfileShow && <ProfileUpdate setVisible={setIsProfileShow} user={user}/>
+      }
       {
         visible && <TodoDialog setVisible={setVisible} label={"Add New Todo"} type="add" />
       }

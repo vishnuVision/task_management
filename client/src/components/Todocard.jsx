@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import TodoDialog from "../Dialog/TodoDialog";
-import TodoDeleteDialog from "../Dialog/TodoDeleteDialog";
 import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import getDetails from "../context/useContext";
@@ -8,18 +7,16 @@ import SubTask from "./SubTask";
 import TodoDetails from "./TodoDetails";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { deassignSubTask } from "../redux/slices/notificationReducer";
+import { deassignComments, deassignSubTask } from "../redux/slices/notificationReducer";
 
 function Todocard({ _id = "", title = "", description = "", priority = "", status = "", owner = []}) {
-  const { admin: isAdmin } = useSelector(state => state?.authReducer?.user);
+  // const { admin: isAdmin } = useSelector(state => state?.authReducer?.user);
   const { users } = useContext(getDetails);
   const { comments, subTodo } = useSelector(state => state.notificationReducer);
   const dispatch = useDispatch();
 
   // dialog state
-  const [visible, setVisible] = useState(false);
   const [visibleSubTask, setVisibleSubTask] = useState(false);
-  const [deleteVisible, setDeleteVisible] = useState(false);
 
   const [avatar, setAvatar] = useState([]);
   const [isSideBar, setIsSideBar] = useState(false);
@@ -122,40 +119,27 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
   }, [subTodo])
 
   useEffect(() => {
-    if (showSubTask) {
+    if(isSideBar)
+    {
+      dispatch(deassignSubTask(_id));
+      dispatch(deassignComments(_id));
+    }
+  }, [isSideBar])
+
+  useEffect(()=>{
+    if(showSubTask)
+    {
       dispatch(deassignSubTask(_id));
     }
-  }, [showSubTask])
+  },[showSubTask])
 
   return (
     <>
-      <div className={`w-full box-content border border-slate-200 z-0 hover:border-slate-700 hover:z-0 hover:shadow-xl rounded-lg px-4 py-2 ${priority === "LOW" ? "bg-red-100" : ""} ${priority === "MEDIUM" ? "bg-blue-100" : ""} ${priority === "HIGH" ? "bg-green-100 " : ""}`}>
-        <div className="flex justify-between py-2 px-1 border-b-[1px] border-slate-300 mb-1">
-          <div className="flex">
-            <p className="text-sm font-bold">{priority}</p>
-          </div>
-          {
-            isAdmin &&
-            <div className="flex flex-row-reverse gap-4">
-              <div className="relative group">
-                <button onClick={() => setDeleteVisible(true)} className="text-lg"><i className="fa-solid fa-trash"></i></button>
-                <div className="absolute z-10  transform -translate-x-6 bottom-full mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Delete
-                </div>
-              </div>
-              <div className="relative group">
-                <button onClick={() => setVisible(true)} className="text-lg"><i className="fa-solid fa-pen-to-square"></i></button>
-                <div className="absolute z-10  transform -translate-x-6 bottom-full mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Update
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-        <div>
-          <div className="cursor-pointer" onClick={() => setIsSideBar(prev => !prev)}>
+      <div className={`w-full box-content border shadow-lg border-slate-200 z-0 hover:border-slate-700 hover:z-0 hover:shadow-xl rounded-lg px-4 py-2 `}>
+        <div className="">
+          <div className="cursor-pointer p-2" onClick={() => setIsSideBar(prev => !prev)}>
             <div className="flex flex-wrap gap-2">
-              <p className="font-bold">{title}</p>
+              <p className="font-bold ms-1">{title}</p>
             </div>
             <div className="flex -space-x-4 mt-2 items-center">
               {
@@ -172,7 +156,7 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
           </div>
           <div className="flex flex-row-reverse">
             <div onClick={() => setIsSideBar(prev => !prev)} className="relative group py-2 px-2">
-              <button className="text-2xl"><i className="fa-regular fa-comment"></i></button>
+              <button className="text-md font-thin text-slate-500"><i className="fa-regular fa-comment"></i></button>
               {
                 commentCount > 0 &&
                 <div className="absolute cursor-pointer top-0 left-4 z-10 bg-red-500 px-[6px] rounded-full">
@@ -183,8 +167,8 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
                 Comment
               </div>
             </div>
-            <div className="relative group z-20 py-2 px-2">
-              <button onClick={() => setShowSubTask(prev => !prev)} className="text-2xl">
+            <div className="relative group z-20 py-2 px-2 max-w-100 overflow-hidden">
+              <button onClick={() => setShowSubTask(prev => !prev)} className="text-md font-thin text-slate-500">
                 {
                   showSubTask ? <i className="fa-solid fa-angle-up"></i> : <i className="fa-solid fa-angle-down"></i>
                 }
@@ -195,7 +179,7 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
                   <span>{subTaskCount}</span>
                 </div>
               }
-              <div className="absolute z-10  transform -translate-x-6 bottom-full mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute z-10  transform -translate-x-6 bottom-full mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 SubTask
               </div>
             </div>
@@ -206,13 +190,7 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
         </div>
       </div>
       {
-        isSideBar && <TodoDetails todoData={{ id: _id, title, description, priority, status, avatar }} isSideBar={isSideBar} setIsSideBar={setIsSideBar} subTask={subTask} comments={commentsList} getComments={getComments} refreshsubTask={getSubTasks} />
-      }
-      {
-        visible && <TodoDialog setVisible={setVisible} label={"Update New Todo"} type="update" todo={{ _id, title, description, priority, status, owner }} />
-      }
-      {
-        deleteVisible && <TodoDeleteDialog visible={deleteVisible} label={"Delete Todo"} setVisible={setDeleteVisible} id={_id} />
+        isSideBar && <TodoDetails todoData={{ _id: _id, title, description, priority, status, avatar,owner }} isSideBar={isSideBar} setIsSideBar={setIsSideBar} subTask={subTask} comments={commentsList} getComments={getComments} refreshsubTask={getSubTasks} />
       }
       {
         visibleSubTask && <TodoDialog visible={visibleSubTask} setVisible={setVisibleSubTask} label={"Add New Subtask"} id={_id} mode="subTask" refreshSubTodoData={getSubTasks} />

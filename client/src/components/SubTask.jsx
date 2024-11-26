@@ -14,7 +14,7 @@ function SubTask({subTask=[],setVisible,color}) {
         }
         {
             subTask && subTask.length > 0 && subTask.map(({title,owner},idx)=>(
-                <div key={idx} className={`flex flex-row gap-2 items-center border-slate-300 border-b-[1px] py-1 hover:bg-${color}-200`}>
+                <div key={idx} className={`flex flex-row items-center gap-1 border-slate-300 border-b-[1px] py-1 hover:bg-${color}-200`}>
                     <div className="flex -space-x-4 mx-2 py-2 items-center">
                         {
                             owner && owner.length > 0 && owner.map(({avatar},idx)=>(
@@ -30,13 +30,12 @@ function SubTask({subTask=[],setVisible,color}) {
         }
         {
             isAdmin &&
-            <div className={`flex mt-3 hover:bg-${color}-200`}>
-                <button onClick={()=>setVisible(true)} className={`py-2 px-2 flex flex-grow items-center gap-2 justify-start`}>
+            <div className={`flex mt-3 hover:bg-${color}-200 max-w-fit`}>
+                <button onClick={()=>setVisible(true)} className={`py-2 flex flex-grow items-center gap-2 justify-start`}>
                     <i className="fa-solid fa-plus"></i> Add subtask
                 </button>
             </div>
         }
-        
     </div>
   )
 }

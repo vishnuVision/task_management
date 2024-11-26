@@ -1,4 +1,5 @@
 import daisyui from './node_modules/daisyui';
+import tailwindscrollbar from "./node_modules/tailwind-scrollbar";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -10,11 +11,9 @@ export default {
     extend: {
       screens: {
         'xxs': '375px',
+        'xs':'450px',
       },
     },
   },
-  plugins: [daisyui],
-  daisyui: {
-    themes: ["light","dark"],
-  },
+  plugins: [daisyui,tailwindscrollbar],
 }

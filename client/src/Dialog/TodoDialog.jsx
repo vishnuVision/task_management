@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import MultiSelect from "../components/MultiSelect";
 import Input from "../components/Input";
 
-function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {}, mode="todo",id, refreshSubTodoData}) {
+function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {}, mode="todo",id, refreshSubTodoData,setIsSideBar,refreshTodoData}) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [disable, setDisable] = useState(false);
@@ -131,16 +131,27 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
                         }
                     });
                     const data = response?.data;
+                    console.log(data);
                     if (data?.success) {
+                        
                         toast.success(data?.message, { id: toastId });
-                        refreshData();
                         setVisible(false);
+                        refreshData(null,true,false,data?.data?._id);
+                        if(setIsSideBar)
+                        {
+                            setIsSideBar(false);
+                        }
+                        if(refreshTodoData)
+                        {
+                            refreshTodoData();
+                        }
                         resetData();
                     }
                 else {
                     toast.danger(data?.message, { id: toastId });
                 }
                 } catch (error) {
+                    console.log(error);
                     if(!error?.response?.data?.success)
                     {
                         toast.error(error.response.data.message,{id:toastId});
@@ -206,7 +217,7 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
                 const data = response?.data;
                 if (data?.success) {
                     toast.success(data?.message, { id: toastId });
-                    refreshSubTodoData();
+                    refreshSubTodoData(id);
                     setVisible(false);
                     resetData();
                 }
@@ -224,7 +235,7 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
 
     return (
         <>
-            <div className="relative z-40">
+            <div onClick={(e)=>e.stopPropagation()} className="relative z-50">
                 <div className="fixed inset-0 bg-slate-500 bg-opacity-30 transition-opacity"></div>
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
@@ -318,7 +329,9 @@ TodoDialog.propTypes = {
     todo: PropTypes.any,
     mode:PropTypes.string,
     id:PropTypes.string,
-    refreshSubTodoData:PropTypes.func
+    refreshSubTodoData:PropTypes.func,
+    setIsSideBar:PropTypes.func,
+    refreshTodoData:PropTypes.func
 }
 
 export default TodoDialog

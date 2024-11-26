@@ -4,32 +4,36 @@ import { useContext, useState } from "react";
 import getDetails from "../context/useContext";
 import toast from "react-hot-toast";
 
-function TodoDeleteDialog({ visible = false, setVisible, id, refreshData:refreshSubTask, mode="todo",label }) {
+function TodoDeleteDialog({ visible = false, setVisible, id, refreshData: refreshSubTask, mode = "todo", label, todoid, setIsSideBar, refreshTodoData }) {
     const [disable, setDisable] = useState(false);
     const { refreshData } = useContext(getDetails);
+
+    console.log(id);
 
     const handleSubmit = async () => {
         setDisable(true);
         let toastId = toast.loading("Todo Deleting...");
-        if(id)
-        {
+        if (id) {
             try {
-                const response = await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/deleteTodo/${id}`,{withCredentials:true});
+                const response = await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/deleteTodo/${id}`, { withCredentials: true });
                 const data = response?.data;
-                if(data?.success)
-                {
-                    toast.success("Todo Deleted Successfully!",{id:toastId});
-                    refreshData(null,true,false,data?.data?._id);
+                if (data?.success) {
+                    toast.success("Todo Deleted Successfully!", { id: toastId });
+                    refreshData(null, true, false, data?.data?._id);
                     setVisible(false);
+                    if (setIsSideBar) {
+                        setIsSideBar(false);
+                    }
+                    if (refreshTodoData) {
+                        refreshTodoData();
+                    }
                 }
-                else
-                {
-                    toast.success("Something Wrong",{id:toastId});
+                else {
+                    toast.success("Something Wrong", { id: toastId });
                 }
             } catch (error) {
-                if(!error?.response?.data?.success)
-                {
-                    toast.error(error.response.data.message,{id:toastId});
+                if (!error?.response?.data?.success) {
+                    toast.error(error.response.data.message, { id: toastId });
                 }
             }
         }
@@ -39,25 +43,21 @@ function TodoDeleteDialog({ visible = false, setVisible, id, refreshData:refresh
     const deleteSubTask = async () => {
         setDisable(true);
         let toastId = toast.loading("SubTodo Deleting...");
-        if(id)
-        {
+        if (id) {
             try {
-                const response = await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/deleteSubtodo/${id}`,{withCredentials:true});
+                const response = await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/deleteSubtodo/${id}`, { withCredentials: true });
                 const data = response?.data;
-                if(data?.success)
-                {
-                    toast.success("SubTodo Deleted Successfully!",{id:toastId});
-                    refreshSubTask();
+                if (data?.success) {
+                    toast.success("SubTodo Deleted Successfully!", { id: toastId });
+                    refreshSubTask(todoid);
                     setVisible(false);
                 }
-                else
-                {
-                    toast.success("Something Wrong",{id:toastId});
+                else {
+                    toast.success("Something Wrong", { id: toastId });
                 }
             } catch (error) {
-                if(!error?.response?.data?.success)
-                {
-                    toast.error(error.response.data.message,{id:toastId});
+                if (!error?.response?.data?.success) {
+                    toast.error(error.response.data.message, { id: toastId });
                 }
             }
         }
@@ -67,7 +67,7 @@ function TodoDeleteDialog({ visible = false, setVisible, id, refreshData:refresh
     if (visible)
         return (
             <>
-                <div className="relative z-40">
+                <div onClick={(e) => e.stopPropagation()} className="relative z-50">
                     <div className="fixed inset-0 bg-slate-600 bg-opacity-30 transition-opacity"></div>
                     <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
@@ -88,7 +88,7 @@ function TodoDeleteDialog({ visible = false, setVisible, id, refreshData:refresh
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                    <button onClick={mode==="todo"?handleSubmit:deleteSubTask} disabled={disable} type="button" className="mt-3 inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset hover:bg-blue-500 sm:mt-0 sm:w-auto">Delete</button>
+                                    <button onClick={mode === "todo" ? handleSubmit : deleteSubTask} disabled={disable} type="button" className="mt-3 inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset hover:bg-blue-500 sm:mt-0 sm:w-auto">Delete</button>
                                     <button onClick={() => setVisible(false)} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-gray-100 sm:ml-3 sm:w-auto me-2">Cancel</button>
                                 </div>
                             </div>
@@ -103,9 +103,12 @@ TodoDeleteDialog.propTypes = {
     visible: PropTypes.bool,
     setVisible: PropTypes.any,
     id: PropTypes.any,
-    refreshData:PropTypes.func,
-    mode:PropTypes.string,
-    label:PropTypes.string
+    refreshData: PropTypes.func,
+    mode: PropTypes.string,
+    label: PropTypes.string,
+    todoid: PropTypes.string,
+    setIsSideBar: PropTypes.func,
+    refreshTodoData: PropTypes.func
 }
 
 export default TodoDeleteDialog

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import toast from "react-hot-toast";
 import Input from "../components/Input";
 
-function CommentUpdateDialog({ setVisible, label = "Add New Comment", comment = {}, refreshData }) {
+function CommentUpdateDialog({ setVisible, label = "Add New Comment", comment = {},id, refreshData }) {
     const [disable, setDisable] = useState(false);
     const [error, setError] = useState("");
     const [text, setText] = useState("");
@@ -30,7 +30,7 @@ function CommentUpdateDialog({ setVisible, label = "Add New Comment", comment = 
                     const data = response?.data;
                     if (data?.success) {
                         toast.success(data?.message, { id: toastId });
-                        refreshData();
+                        refreshData(id);
                         setVisible(false);
                         setText("");
                     }
@@ -49,7 +49,7 @@ function CommentUpdateDialog({ setVisible, label = "Add New Comment", comment = 
 
     return (
         <>
-            <div className="relative z-40 rounded-lg">
+            <div onClick={(e)=>e.stopPropagation()} className="relative z-50 rounded-lg">
                 <div className="fixed inset-0 bg-slate-500 bg-opacity-30 transition-opacity"></div>
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
@@ -90,7 +90,8 @@ CommentUpdateDialog.propTypes = {
     label: PropTypes.string,
     comment: PropTypes.any,
     refreshData: PropTypes.any,
-    visible: PropTypes.bool
+    visible: PropTypes.bool,
+    id:PropTypes.string
 }
 
 export default CommentUpdateDialog

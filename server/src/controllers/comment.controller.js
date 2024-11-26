@@ -86,23 +86,17 @@ const deleteComment = async (req,res,next) => {
     }
 }
 
-const updateComment = async (req,res,next) => {
+const deleteImage = async (req,res,next) => {
     try {
         if(!req.user && !req.admin)
             return next(new ErrorHandler("Please Login!",404));
     
         const {id} = req?.params;
-        const {path} = req?.file;
     
-        if(!path && !id) 
+        if(!id) 
             return next(new ErrorHandler("All fields are required",400));
     
-        const {url:image} = await uploadOnCloudinary(path);
-    
-        if(!image)
-            return next(new ErrorHandler("Something wrong in Cloudinary",500));
-    
-        const comment = await Comment.findByIdAndUpdate(id,{image});
+        const comment = await Comment.findByIdAndUpdate(id,{image:""});
     
         if(!comment)
             return next(new ErrorHandler("Comment not updated, please try again",201));
@@ -159,7 +153,7 @@ const getAllComment = async (req,res,next) => {
 export {
     createComment,
     deleteComment,
-    updateComment,
+    deleteImage,
     getAllComment,
     updateCommentText
 }

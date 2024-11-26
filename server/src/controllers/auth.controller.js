@@ -70,15 +70,23 @@ const getUser = async (req,res,next) => {
     try {
         if(!req.user && !req.admin)
             return next(new ErrorHandler("User not found",404));
-    
-        if(req.admin)
+
+        let owner;
+        if(req.user)
         {
-            return sendResponse(res,200,"User Found",true,req.admin,"");
+            owner = req.user._id;
         }
         else
         {
-            return sendResponse(res,200,"User Found",true,req.user,"");
+            owner = req.admin._id;
         }
+
+        const user = await User.findById(owner).select("-createdAt -updatedAt -__v -password").lean();
+
+        if(!user)
+            return next(new ErrorHandler("User not found",404));        
+
+        return sendResponse(res,200,"User Found",true,user,"");
     } catch (error) {
         return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
     }
@@ -123,10 +131,85 @@ const getAllUsers = async (req,res,next) => {
     }
 }
 
+const updateAvatar = async (req,res,next) => {
+    try {
+        if(!req.user && !req.admin)
+            return next(new ErrorHandler("User not found",404));
+        
+        let owner;
+        if(req.admin)
+        {
+            owner = req.admin._id;
+        }
+        else
+        {
+            owner = req.user._id;
+        }
+
+        const path = req?.file?.path;
+
+        if(!path) 
+            return next(new ErrorHandler("Avatar is required",400));
+
+        const cloudinary_file = await uploadOnCloudinary(path);
+
+        if(!cloudinary_file)
+            return next(new ErrorHandler("Something wrong in Cloudinary",500));
+
+        const {url:avatar} = cloudinary_file;
+
+        if(!avatar)
+            return next(new ErrorHandler("Something wrong in Cloudinary",500));
+
+        const user = await User.findByIdAndUpdate(owner,{avatar}).select("-createdAt -updatedAt -__v").lean();
+
+        if(!user)
+            return next(new ErrorHandler("Something wrong in User Creation",500));
+
+        return sendResponse(res,200,"User Created",true,user,"")
+
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
+    }
+}
+
+const updateUser = async (req,res,next) => {
+    try {
+        if(!req.user && !req.admin)
+            return next(new ErrorHandler("User not found",404));
+    
+        let owner;
+        if(req.admin)
+        {
+            owner = req.admin._id;
+        }
+        else
+        {
+            owner = req.user._id;
+        }
+
+        const {username,name,email} = req?.body; 
+
+        if(!username || !name || !email) 
+            return next(new ErrorHandler("All fields are required",400));
+
+        const user = await User.findByIdAndUpdate(owner,{username,name,email},{new:true}).select("-createdAt -updatedAt -__v -password").lean();
+
+        if(!user)
+            return next(new ErrorHandler("Something wrong in User Update",500));
+
+        return sendResponse(res,200,"User Updated",true,user,"");
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
+    }
+}
+
 export {
     register,
     login,
     getUser,
     logout,
-    getAllUsers
+    getAllUsers,
+    updateAvatar,
+    updateUser
 }

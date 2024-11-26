@@ -119,6 +119,31 @@ const getAllTodo = async (req, res, next) => {
     }
 }
 
+const getAllTodoForList = async (req, res, next) => {
+    try {
+        if (!req.user && !req.admin)
+            return next(new ErrorHandler("Please Login!", 404));
+
+        let owner = "";
+
+        if (req.user) {
+            owner = req.user._id;
+        }
+        else {
+            owner = req.admin._id;
+        }
+
+        const todoList = await Todo.find({ owner })
+
+        if (!todoList)
+            return next(new ErrorHandler("Todos Not Available", 404));
+
+        return sendResponse(res, 200, "Todo Fetched Successfully", true, todoList);
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred", 404));
+    }
+}
+
 const getUserTodos = async (req, res, next) => {
     try {
         const { _id, page } = req.params;
@@ -142,10 +167,27 @@ const getUserTodos = async (req, res, next) => {
     }
 }
 
+const getUserTodosForList = async (req, res, next) => {
+    try {
+        const { _id } = req.params;
+
+        const todoList = await Todo.find({owner: _id});
+
+        if (!todoList)
+            return next(new ErrorHandler("Todos Not Available", 404));
+
+        return sendResponse(res, 200, "Todo Fetched Successfully", true, todoList);
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred", 404));
+    }
+}
+
 export {
     createTodo,
     deleteTodo,
     updateTodo,
     getAllTodo,
-    getUserTodos
+    getUserTodos,
+    getAllTodoForList,
+    getUserTodosForList
 }

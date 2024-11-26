@@ -10,34 +10,33 @@ import TodoDeleteDialog from "../Dialog/TodoDeleteDialog";
 import SubTaskCard from "./SubTaskCard";
 import Commentcard from "./Commentcard";
 
-function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsubTask, getComments }) {
-
+function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsubTask, getComments, refreshTodoData }) {
     const { admin: isAdmin } = useSelector(state => state?.authReducer?.user);
     const { avatar } = useSelector(state => state.authReducer.user);
 
     const [text, setText] = useState("");
     const [image, setImage] = useState("");
-    const [updateImage, setUpdateImage] = useState("");
     const [effectedComment, setEffectedComment] = useState({});
     const [effectedSubTask, setEffectedSubTask] = useState({});
-    const [lastModifiedComment, setLastModifiedComment] = useState({});
-    const [disable, setDisable] = useState(false);
 
     // dialogs state
     const [isVisibleDelete, setIsVisibleDelete] = useState(false);
     const [isVisibleUpdate, setIsVisibleUpdate] = useState(false);
     const [isVisibleSubTaskDelete, setIsVisibleSubTaskDelete] = useState(false);
     const [isVisibleSubTaskUpdate, setIsVisibleSubTaskUpdate] = useState(false);
+    const [isVisibleSubTaskAdd, setIsVisibleSubTaskAdd] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [deleteVisible, setDeleteVisible] = useState(false);
 
     const fileRef = useRef();
-    const updateFileRef = useRef();
 
-    const [title,setTitle] = useState("");
-    const [description,setDescription] = useState("");
-    const [status,setStatus] = useState("");
-    const [priority,setPriority] = useState("");
-    const [assigneeAvatar,setAssigneeAvatar] = useState([]);
-    const [subtask,setSubTask] = useState(subTask);
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [status, setStatus] = useState("");
+    const [priority, setPriority] = useState("");
+    const [assigneeAvatar, setAssigneeAvatar] = useState([]);
+    const [subtask, setSubTask] = useState(subTask);
+    const [todoOptions, setTodoOptions] = useState(false);
 
     const resetData = () => {
         setText("");
@@ -46,46 +45,41 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
 
     const getSubTasks = async () => {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/subtodo/${_id}`, {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json"
-            }
-          })
-    
-          if (response.data) {
-            const { success, message, data } = response.data;
-            if (success) {
-              setSubTask(data);
-            }
-            else {
-              toast.error(message);
-            }
-          }
-        } catch (error) {
-          if (!error?.response?.data?.success) {
-            toast.error(error.response.data.message);
-          }
-        }
-      }
+            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/subtodo/${todoData?._id}`, {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
 
-    useEffect(()=>{
+            if (response.data) {
+                const { success, message, data } = response.data;
+                if (success) {
+                    setSubTask(data);
+                }
+                else {
+                    toast.error(message);
+                }
+            }
+        } catch (error) {
+            if (!error?.response?.data?.success) {
+                toast.error(error.response.data.message);
+            }
+        }
+    }
+
+    useEffect(() => {
         setTitle(todoData?.title);
         setDescription(todoData?.description);
         setStatus(todoData?.status);
         setPriority(todoData?.priority);
         setAssigneeAvatar(todoData?.avatar);
-    },[todoData]);
-
-    useEffect(() => {
-        if (todoData) {
-            getComments();
-        }
-    }, [])
+        setSubTask(subTask);
+    }, [todoData]);
 
     const createComment = async () => {
         let toastId = toast.loading("Comment Creating...");
-        if ((!text && !image) || !todoData?.id) {
+        if ((!text && !image) || !todoData?._id) {
             toast.error("All fields are required", { id: toastId });
         }
         else {
@@ -93,7 +87,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                 const formdata = new FormData();
                 formdata.append("text", text);
                 formdata.append("image", image);
-                formdata.append("todo", todoData?.id);
+                formdata.append("todo", todoData?._id);
 
                 const response = await axios.post(`http://localhost:9000/api/v1/createComment`, formdata, {
                     withCredentials: true,
@@ -105,7 +99,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                     if (success) {
                         toast.success(message, { id: toastId });
                         resetData();
-                        getComments();
+                        getComments(todoData?._id);
                     }
                     else {
                         toast.error(message);
@@ -140,62 +134,38 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
         setIsVisibleSubTaskUpdate(true);
     }
 
-    const modifyImage = async (comment) => {
-        updateFileRef.current.click();
-        setLastModifiedComment(comment);
-    }
-
-    const handleUpdateImage = async () => {
-        setDisable(true);
-        let toastId = toast.loading("Updating new todo...");
-        if (lastModifiedComment) {
-            if (!updateImage) {
-                toast.error("Image isn't Selected Properly", { id: toastId })
-            }
-            else {
-                toast.loading("Updating new todo...", { id: toastId });
-                try {
-                    const formdata = new FormData();
-                    formdata.append("image", updateImage);
-
-                    const response = await axios.put(`${import.meta.env.VITE_SERVER_URL}/api/v1/updateComment/${lastModifiedComment?._id}`, formdata, {
-                        withCredentials: true
-                    });
-                    const data = response?.data;
-                    if (data?.success) {
-                        toast.success(data?.message, { id: toastId });
-                        getComments();
-                        setLastModifiedComment({});
-                        setUpdateImage("");
-                    }
-                    else {
-                        toast.error(data?.message, { id: toastId });
-                    }
-                } catch (error) {
-                    if (!error?.response?.data?.success) {
-                        toast.error(error.response.data.message, { id: toastId });
-                    }
-                }
-            }
-        }
-        setDisable(false);
-    }
-
-    useEffect(() => {
-        if (Object.keys(lastModifiedComment).length > 0) {
-            handleUpdateImage();
-        }
-    }, [updateImage])
-
     return (
-        <>
-            <div className={`z-50 flex fixed flex-col justify-between right-0 top-0 h-full w-84 sm:w-96 lg:w-1/3 bg-slate-50 border-s-[1px] border-slate-200`}>
+        <div onClick={() => setIsSideBar(false)} className="absolute z-30 inset-0 h-screen w-full">
+            <div className={`z-10 flex fixed flex-col justify-between right-0 top-0 h-full w-84 sm:w-96 lg:w-1/3 bg-slate-50 border-s-[1px] border-slate-200`}>
                 <div className="flex flex-col overflow-y-scroll">
-                    <div className="border-b-[1px] border-black p-4 flex justify-between items-center">
-                        <p className={`${status === "COMPLETED" ? "bg-green-100 border border-green-300" : ""} ${status === "INCOMPLETED" ? "bg-red-100 border border-red-300 " : ""} ${status === "INPROGRESS" ? "bg-blue-100 border border-blue-400" : ""} px-2 py-1 rounded-lg text-sm`}>{status.toLowerCase()}</p>
-                        <button onClick={() => { resetData(); setIsSideBar(false); }} className="text-2xl"><i className="fa-solid fa-arrow-right-to-bracket"></i></button>
+                    <div onClick={(e) => e.stopPropagation()} className="border-b-[1px] border-black p-4 flex justify-between items-center">
+                        <p className={`${status === "COMPLETED" ? "bg-green-100 border border-green-300" : ""} ${status === "INCOMPLETED" ? "bg-red-100 border border-red-300 " : ""} ${status === "INPROGRESS" ? "bg-blue-100 border border-blue-400" : ""} px-2 py-1 rounded-lg text-sm`}>{status?.toLowerCase()}</p>
+                        <div className="flex gap-4 items-center">
+                            {
+                                isAdmin &&
+                                <button onClick={() => setTodoOptions(prev => !prev)} className="text-2xl relative">
+                                    <i className="fa-solid fa-ellipsis"></i>
+                                    {
+                                        todoOptions &&
+                                        <div className="relative">
+                                            <div className="absolute z-40 w-40 bg-white transform right-0 top-0 text-black text-sm rounded-md shadow-lg duration-300">
+                                                <div className="flex flex-col justify-center">
+                                                    <div onClick={() => setVisible(true)} className="hover:bg-slate-100 px-3 py-2 cursor-pointer">
+                                                        Edit Todo
+                                                    </div>
+                                                    <div onClick={() => setDeleteVisible(true)} className="hover:bg-slate-100 px-3 py-2 cursor-pointer">
+                                                        Delete Todo
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </button>
+                            }
+                            <button onClick={() => { resetData(); setIsSideBar(false); }} className="text-2xl"><i className="fa-solid fa-arrow-right-to-bracket"></i></button>
+                        </div>
                     </div>
-                    <div className="flex flex-col p-2 px-4">
+                    <div onClick={(e) => e.stopPropagation()} className="flex flex-col p-2 px-4">
                         <p className="text-lg font-bold mt-4 px-2 border border-slate-200 rounded-lg py-2">{title}</p>
                         <div className="flex flex-col mt-8 gap-8">
                             <div className="flex gap-4 flex-row justify-between">
@@ -237,44 +207,52 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                         <div className="flex flex-col gap-2 mt-8">
                             <div className="flex gap-2 align-middle items-center cursor-pointer border-b-[1px] border-slate-200 pb-2">
                                 <p className="align-middle text-sm">Subtask</p>
-                                <p className="bg-slate-200 rounded-full px-2">{subTask.length}</p>
+                                <p className="bg-slate-200 rounded-full px-2">{subtask?.length}</p>
                             </div>
                             <div className="flex flex-col gap-2">
                                 {
-                                    subTask && subTask.length > 0 && subTask.map((subTask, idx) => (
-                                        <SubTaskCard key={idx} subTask={subTask} handleDeleteSubTask={handleDeleteSubTask} handleUpdateSubTask={handleUpdateSubTask} isAdmin={isAdmin} getSubTask={getSubTasks}/>
+                                    subtask && subtask.length > 0 && subtask.map((subTask, idx) => (
+                                        <SubTaskCard key={idx} subTask={subTask} handleDeleteSubTask={handleDeleteSubTask} handleUpdateSubTask={handleUpdateSubTask} isAdmin={isAdmin} getSubTask={getSubTasks} />
                                     ))
                                 }
                                 {
-                                    subTask.length <= 0 &&
+                                    subTask?.length <= 0 &&
                                     <div className="flex justify-center items-center">No SubTask Found</div>
+                                }
+                                {
+                                    isAdmin &&
+                                    <div className="flex mt-4 border-t-[1px] border-slate-200">
+                                        <button onClick={() => setIsVisibleSubTaskAdd(prev => !prev)} className={`py-2 px-2 flex border border-slate-400 my-2 rounded-lg items-center gap-2 justify-start`}>
+                                            <i className="fa-solid fa-plus"></i> Add subtask
+                                        </button>
+                                    </div>
                                 }
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 mt-4">
                             <div className="flex gap-2 align-middle items-center cursor-pointer border-b-[1px] border-slate-200 pb-2">
                                 <p className="align-middle text-sm">Comments</p>
-                                <p className="bg-slate-200 rounded-full px-2">{comments.length}</p>
+                                <p className="bg-slate-200 rounded-full px-2">{comments?.length}</p>
                             </div>
                             <div className="flex flex-col gap-2">
                                 {
-                                    comments.length <= 0 &&
+                                    comments?.length <= 0 &&
                                     <div className="flex justify-center items-center">No comments Found</div>
                                 }
                                 {
-                                    comments && comments.length > 0 && comments.map((comment, idx) => (
-                                        <Commentcard key={idx} comment={comment} disable={disable} handleDelete={handleDelete} handleUpdate={handleUpdate} modifyImage={modifyImage} updateFileRef={updateFileRef} setUpdateImage={setUpdateImage} />
+                                    comments && comments?.length > 0 && comments.map((comment, idx) => (
+                                        <Commentcard key={idx} comment={comment} handleDelete={handleDelete} handleUpdate={handleUpdate} getComments={getComments} id={todoData._id} />
                                     ))
                                 }
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="border-t-[1px]  border-slate-200 p-4 flex flex-col justify-start gap-2">
+                <div onClick={(e) => e.stopPropagation()} className="border-t-[1px]  border-slate-200 p-4 flex flex-col justify-start gap-2">
                     <div className="flex gap-2 pt-4">
                         <div className="flex flex-col gap-2 justify-start">
                             <img src={avatar} className="w-10 h-10 rounded-full border border-white cursor-pointer" alt="User Avatar" />
-                            <button onClick={() => fileRef.current.click()} className="bg-slate-400 py-2 px-2 rounded-full">
+                            <button onClick={() => fileRef.current.click()} className="bg-slate-200 py-2 px-2 rounded-full">
                                 {
                                     image && <i className="fa-solid fa-file"></i>
                                 }
@@ -301,18 +279,27 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                 </div>
             </div>
             {
-                isVisibleDelete && <CommentDeleteDialog visible={isVisibleDelete} setVisible={setIsVisibleDelete} comment={effectedComment} refreshData={getComments} />
+                isVisibleDelete && <CommentDeleteDialog visible={isVisibleDelete} setVisible={setIsVisibleDelete} comment={effectedComment} id={todoData?._id} refreshData={getComments} />
             }
             {
-                isVisibleUpdate && <CommentUpdateDialog visible={isVisibleUpdate} label="update comment" setVisible={setIsVisibleUpdate} type={"update"} comment={effectedComment} refreshData={getComments} />
+                isVisibleUpdate && <CommentUpdateDialog visible={isVisibleUpdate} label="update comment" setVisible={setIsVisibleUpdate} id={todoData?._id} type={"update"} comment={effectedComment} refreshData={getComments} />
             }
             {
-                isVisibleSubTaskDelete && <TodoDeleteDialog visible={isVisibleSubTaskDelete} label="Delete Subtask" setVisible={setIsVisibleSubTaskDelete} refreshData={refreshsubTask} mode="subTask" id={effectedSubTask} />
+                isVisibleSubTaskDelete && <TodoDeleteDialog visible={isVisibleSubTaskDelete} label="Delete Subtask" setVisible={setIsVisibleSubTaskDelete} todoid={todoData?._id} refreshData={refreshsubTask} mode="subTask" id={effectedSubTask} />
             }
             {
-                isVisibleSubTaskUpdate && <TodoDialog visible={isVisibleDelete} id={todoData.id} setVisible={setIsVisibleSubTaskUpdate} label={"Update New Subtask"} mode="subTask" todo={effectedSubTask} type="update" refreshSubTodoData={refreshsubTask} />
+                isVisibleSubTaskUpdate && <TodoDialog visible={isVisibleDelete} id={todoData?._id} setVisible={setIsVisibleSubTaskUpdate} label={"Update New Subtask"} mode="subTask" todo={effectedSubTask} type="update" refreshSubTodoData={refreshsubTask} />
             }
-        </>
+            {
+                isVisibleSubTaskAdd && <TodoDialog visible={isVisibleSubTaskAdd} setVisible={setIsVisibleSubTaskAdd} label={"Add New Subtask"} id={todoData?._id} mode="subTask" refreshSubTodoData={getSubTasks} />
+            }
+            {
+                visible && <TodoDialog visible={visible} setVisible={setVisible} refreshTodoData={refreshTodoData} setIsSideBar={setIsSideBar} label={"Update New Todo"} type="update" todo={todoData} />
+            }
+            {
+                deleteVisible && <TodoDeleteDialog visible={deleteVisible} refreshTodoData={refreshTodoData} setVisible={setDeleteVisible} setIsSideBar={setIsSideBar} label={"Delete Todo"} id={todoData?._id} />
+            }
+        </div>
 
     )
 }
@@ -324,7 +311,8 @@ TodoDetails.propTypes = {
     subTask: PropTypes.array,
     comments: PropTypes.array,
     refreshsubTask: PropTypes.func,
-    getComments: PropTypes.func
+    getComments: PropTypes.func,
+    refreshTodoData: PropTypes.func
 };
 
 export default TodoDetails

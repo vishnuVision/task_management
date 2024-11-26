@@ -6,13 +6,13 @@ function Sidebar() {
   const path = window.location.pathname;
 
   return (
-    <div className="bg-slate-900 text-white flex fixed h-screen">
+    <div className="bg-[#2e2e30] text-white flex fixed h-screen">
       <div className="w-12 md:w-16 pt-2 text-center 2xl:w-20 2xl:pt-4 flex flex-col flex-grow justify-between">
         <div className="flex flex-col gap-2">
-          <p className="mb-4 mt-[6px] lg:mt-3 sm:mt-4 2xl:text-lg 2xl:font-semibold">Tools</p>
-          <div className={`relative group py-2 ${path === "/" ? "bg-slate-400" : ""}`}>
+          <p className="mb-4 mt-[0px] lg:mt-2 sm:mt-3 2xl:text-lg 2xl:font-semibold">Tools</p>
+          <div className={`relative group py-2 ${path === "/" ? "bg-[#ffffff1c]" : ""}`}>
             <Link className="text-2xl 2xl:text-2xl" to="/"><i className="fa-regular fa-square-check"></i></Link>
-            <div className="absolute z-10 left-3/4 transform -translate-x-1 -bottom-1 mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute z-auto left-3/4 transform -translate-x-1 -bottom-1 mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               Home
             </div>
           </div>
@@ -20,7 +20,7 @@ function Sidebar() {
             user?.admin &&
             <div className="relative group">
               <Link className="text-2xl 2xl:text-2xl" to="/userTodo"><i className="fa-regular fa-user"></i></Link>
-              <div className="absolute z-10 left-3/4 transform -translate-x-1 top-10 mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute z-50 left-3/4 transform -translate-x-1 top-10 mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 Get User Todos
               </div>
             </div>

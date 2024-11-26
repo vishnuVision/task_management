@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-function CommentDeleteDialog({visible = false, setVisible, comment,refreshData}) {
+function CommentDeleteDialog({visible = false, setVisible,id, comment,refreshData}) {
 
     const [isDisable, setDisable] = useState(false);
 
@@ -19,7 +19,7 @@ function CommentDeleteDialog({visible = false, setVisible, comment,refreshData})
                 {
                     toast.success("Comment Deleted Successfully!",{id:toastId});
                     setVisible(false);
-                    refreshData();
+                    refreshData(id);
                 }
                 else
                 {
@@ -38,7 +38,7 @@ function CommentDeleteDialog({visible = false, setVisible, comment,refreshData})
     if (visible)
         return (
             <>
-                <div className="relative z-40">
+                <div onClick={(e)=>e.stopPropagation()} className="relative z-50">
                     <div className="fixed inset-0 bg-slate-600 bg-opacity-30 transition-opacity"></div>
                     <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
@@ -75,7 +75,8 @@ CommentDeleteDialog.propTypes = {
     visible: PropTypes.bool,
     setVisible: PropTypes.any,
     comment: PropTypes.any,
-    refreshData:PropTypes.any
+    refreshData:PropTypes.any,
+    id:PropTypes.string
 }
 
 export default CommentDeleteDialog

@@ -23,7 +23,7 @@ function Notification({ setVisible,isMobile }) {
     }
     return (
         <>
-            <div className="relative z-40 text-black">
+            <div className="relative z-50 text-black">
                 <div className="fixed bg-slate-600 bg-opacity-30 transition-opacity"></div>
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
