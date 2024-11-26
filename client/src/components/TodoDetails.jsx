@@ -281,9 +281,9 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
             {
                 isVisibleDelete && <CommentDeleteDialog visible={isVisibleDelete} setVisible={setIsVisibleDelete} comment={effectedComment} id={todoData?._id} refreshData={getComments} />
             }
-            {
+            {/* {
                 isVisibleUpdate && <CommentUpdateDialog visible={isVisibleUpdate} label="update comment" setVisible={setIsVisibleUpdate} id={todoData?._id} type={"update"} comment={effectedComment} refreshData={getComments} />
-            }
+            } */}
             {
                 isVisibleSubTaskDelete && <TodoDeleteDialog visible={isVisibleSubTaskDelete} label="Delete Subtask" setVisible={setIsVisibleSubTaskDelete} todoid={todoData?._id} refreshData={refreshsubTask} mode="subTask" id={effectedSubTask} />
             }

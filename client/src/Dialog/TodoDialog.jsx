@@ -238,12 +238,15 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
             <div onClick={(e)=>e.stopPropagation()} className="relative z-50">
                 <div className="fixed inset-0 bg-slate-500 bg-opacity-30 transition-opacity"></div>
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
+                    <div className="flex min-h-full items-center justify-center p-2 text-center sm:items-center sm:p-0">
                         <div className="relative transform pb-2 rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                            <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 rounded-lg">
+                            <div className="flex justify-end px-4 py-2">
+                                <button onClick={()=>setVisible(false)} className="text-2xl"><i className="fa-solid fa-xmark"></i></button>
+                            </div>
+                            <div className="bg-white pb-4 sm:px-6 sm:pb-4 rounded-lg">
                                 <div className="rounded-lg">
                                     <div className="mt-3  sm:ml-4 sm:mt-0 sm:text-left">
-                                        <div className="mt-2">
+                                        <div className="mt-2">    
                                             <form className="">
                                                 <h2 className="text-2xl font-bold text-center mb-6 border py-2 rounded-t-lg">{label}</h2>
                                                 <Input label="Title" type="text" name="title" placeholder="Enter Title" value={title} setValue={setTitle}/>

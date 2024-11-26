@@ -3,32 +3,28 @@ import PropTypes from "prop-types"
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-function CommentDeleteDialog({visible = false, setVisible,id, comment,refreshData}) {
+function CommentDeleteDialog({ visible = false, setVisible, id, comment, refreshData }) {
 
     const [isDisable, setDisable] = useState(false);
 
     const handleDelete = async () => {
         setDisable(true);
         let toastId = toast.loading("Comment Deleting...");
-        if(comment?._id)
-        {
+        if (comment?._id) {
             try {
-                const response = await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/deleteComment/${comment?._id}`,{withCredentials:true});
+                const response = await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/deleteComment/${comment?._id}`, { withCredentials: true });
                 const data = response?.data;
-                if(data?.success)
-                {
-                    toast.success("Comment Deleted Successfully!",{id:toastId});
+                if (data?.success) {
+                    toast.success("Comment Deleted Successfully!", { id: toastId });
                     setVisible(false);
                     refreshData(id);
                 }
-                else
-                {
-                    toast.success("Something Wrong",{id:toastId});
+                else {
+                    toast.success("Something Wrong", { id: toastId });
                 }
             } catch (error) {
-                if(!error?.response?.data?.success)
-                {
-                    toast.error(error.response.data.message,{id:toastId});
+                if (!error?.response?.data?.success) {
+                    toast.error(error.response.data.message, { id: toastId });
                 }
             }
         }
@@ -38,12 +34,15 @@ function CommentDeleteDialog({visible = false, setVisible,id, comment,refreshDat
     if (visible)
         return (
             <>
-                <div onClick={(e)=>e.stopPropagation()} className="relative z-50">
+                <div onClick={(e) => e.stopPropagation()} className="relative z-50">
                     <div className="fixed inset-0 bg-slate-600 bg-opacity-30 transition-opacity"></div>
                     <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
                             <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                                <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                                <div className="flex justify-end px-4 py-2">
+                                    <button onClick={() => setVisible(false)} className="text-2xl"><i className="fa-solid fa-xmark"></i></button>
+                                </div>
+                                <div className="bg-white pb-4 sm:px-6 sm:pb-4 rounded-lg">
                                     <div className="sm:flex sm:items-start">
                                         <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:size-10">
                                             <svg className="size-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
@@ -59,8 +58,8 @@ function CommentDeleteDialog({visible = false, setVisible,id, comment,refreshDat
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                <button onClick={handleDelete} disabled={isDisable}  type="button" className="mt-3 inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset hover:bg-blue-500 sm:mt-0 sm:w-auto">Delete</button>
-                                <button onClick={() => setVisible(false)} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-gray-100 sm:ml-3 sm:w-auto me-2">Cancel</button>
+                                    <button onClick={handleDelete} disabled={isDisable} type="button" className="mt-3 inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset hover:bg-blue-500 sm:mt-0 sm:w-auto">Delete</button>
+                                    <button onClick={() => setVisible(false)} type="button" className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-gray-100 sm:ml-3 sm:w-auto me-2">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -75,8 +74,8 @@ CommentDeleteDialog.propTypes = {
     visible: PropTypes.bool,
     setVisible: PropTypes.any,
     comment: PropTypes.any,
-    refreshData:PropTypes.any,
-    id:PropTypes.string
+    refreshData: PropTypes.any,
+    id: PropTypes.string
 }
 
 export default CommentDeleteDialog

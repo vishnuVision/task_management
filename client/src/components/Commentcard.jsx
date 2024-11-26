@@ -3,8 +3,11 @@ import PropTypes from "prop-types"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast";
 
-function Commentcard({ comment, handleDelete, handleUpdate,getComments,id }) {
+function Commentcard({ comment, handleDelete, handleUpdate, getComments, id }) {
     const [isDrop, setIsDrop] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
+    const [disable,setDisable] = useState(false);
+    const [text, setText] = useState(comment?.text);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -38,6 +41,38 @@ function Commentcard({ comment, handleDelete, handleUpdate,getComments,id }) {
         }
     }
 
+    const updateComment = async () => {
+        setDisable(true);
+        let toastId = toast.loading("Updating new todo...");
+        if (comment) {
+            if (!text) {
+                toast.error("Please Provide valid credentails",{id:toastId});
+            }
+            else {
+                try {
+                    const response = await axios.put(`${import.meta.env.VITE_SERVER_URL}/api/v1/updateCommentText/${comment?._id}`, { text }, {
+                        withCredentials: true
+                    });
+                    const data = response?.data;
+                    if (data?.success) {
+                        toast.success(data?.message, { id: toastId });
+                        getComments(id);
+                        setIsEdit(false);
+                        setText("");
+                    }
+                    else {
+                        toast.error(data?.message, { id: toastId });
+                    }
+                } catch (error) {
+                    if (!error?.response?.data?.success) {
+                        toast.error(error.response.data.message, { id: toastId });
+                    }
+                }
+            }
+        }
+        setDisable(false);
+    }
+
     return (
         <div className="p-2">
             <div className="flex flex-row items-center justify-between px-2">
@@ -57,7 +92,7 @@ function Commentcard({ comment, handleDelete, handleUpdate,getComments,id }) {
                         <div className="relative">
                             <div className="absolute z-40 w-40 bg-white transform right-0 top-0 text-black text-sm rounded-md shadow-lg duration-300">
                                 <div className="flex flex-col justify-center">
-                                    <div onClick={() => handleUpdate(comment)} className="hover:bg-slate-100 px-3 py-2 cursor-pointer">
+                                    <div onClick={() => setIsEdit(true)} className="hover:bg-slate-100 px-3 py-2 cursor-pointer">
                                         Edit Comment
                                     </div>
                                     <div onClick={() => handleDelete(comment)} className="hover:bg-slate-100 px-3 py-2 cursor-pointer">
@@ -78,7 +113,19 @@ function Commentcard({ comment, handleDelete, handleUpdate,getComments,id }) {
                 </div>
             </div>
             <div className="ms-11 pb-2">
-                <p className="break-words mb-2">{comment?.text}</p>
+                {
+                    isEdit &&
+                    <div className="flex flex-col flex-grow border border-black">
+                        <textarea value={text} onChange={(e) => setText(e.target.value)} className="flex-grow border-0 focus:ring-0 focus:border-0 focus:outline-none p-1" type="text" placeholder="Add Comment" />
+                        <div className="flex flex-row-reverse gap-2">
+                            <button onClick={updateComment}>Save changes</button>
+                            <button disabled={disable} onClick={()=>setIsEdit(false)}>Cancel</button>
+                        </div>
+                    </div>
+                }
+                {
+                    !isEdit && <p className="break-words mb-2">{comment?.text}</p>
+                }
                 {
                     comment?.image &&
                     <div className="flex flex-row gap-5 items-center">
@@ -94,8 +141,8 @@ Commentcard.propTypes = {
     comment: PropTypes.object,
     handleDelete: PropTypes.func,
     handleUpdate: PropTypes.func,
-    getComments:PropTypes.func,
-    id:PropTypes.string
+    getComments: PropTypes.func,
+    id: PropTypes.string
 }
 
 export default Commentcard

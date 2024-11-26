@@ -22,16 +22,15 @@ const MultiSelect = ({ options=[],selectedOptions=[],setSelectedOptions,selected
 
   return (
     <div className="mt-1 block relative w-full">
-
       <button
         type="button"
-        className="w-full px-4 py-2 text-left border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="flex justify-between items-center w-full px-1 ps-3 py-2 text-left border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-600"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedUsers.length > 0
           ? selectedUsers.join(", ")
-          : "Select options"}
-        <span className="float-right">▼</span>
+          : "--Select options"}
+        <span className="text-[10px] font-black"><i className="fa-solid fa-chevron-down"></i></span>
       </button>
 
       {isOpen && (

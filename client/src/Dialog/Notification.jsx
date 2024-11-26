@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-function Notification({ setVisible,isMobile }) {
+function Notification({ setVisible, isMobile }) {
     const { notification } = useSelector(state => state.notificationReducer);
     const dispatch = useDispatch();
 
@@ -13,11 +13,11 @@ function Notification({ setVisible,isMobile }) {
     const cancelNotificationModal = async () => {
         try {
             await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/notification`, { withCredentials: true });
-          } catch (error) {
+        } catch (error) {
             if (!error?.response?.data?.success) {
-              toast.error(error.response.data.message);
+                toast.error(error.response.data.message);
             }
-          }
+        }
         setVisible(false);
         dispatch(deassignNotification());
     }
@@ -27,8 +27,11 @@ function Notification({ setVisible,isMobile }) {
                 <div className="fixed bg-slate-600 bg-opacity-30 transition-opacity"></div>
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
-                        <div className={`absolute ${isMobile ? "top-20 z-50 w-60" : "top-10 right-60" } transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg`}>
-                            <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div className={`absolute ${isMobile ? "top-20 z-50 w-60" : "top-10 right-60"} transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg`}>
+                            <div className="flex justify-end px-4 py-2">
+                                <button onClick={cancelNotificationModal} className="text-2xl"><i className="fa-solid fa-xmark"></i></button>
+                            </div>
+                            <div className="bg-white pb-4 sm:px-6 sm:pb-4 rounded-lg">
                                 <div className="flex flex-col">
                                     <div className="mt-3 text-center border py-2 rounded-t-lg">
                                         <h3 className="text-base font-semibold text-gray-900" id="modal-title">Notifications</h3>
@@ -84,7 +87,7 @@ function Notification({ setVisible,isMobile }) {
 
 Notification.propTypes = {
     setVisible: PropTypes.any,
-    isMobile:PropTypes.bool
+    isMobile: PropTypes.bool
 }
 
 export default Notification
