@@ -1,7 +1,7 @@
 function Loading() {
   return (
-    <div>
-        Loading...
+    <div className="w-screen h-screen flex justify-center items-center">
+        Loading Data...
     </div>
   )
 }

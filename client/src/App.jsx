@@ -57,7 +57,6 @@ function App() {
             <Route path="/login" element={<Login/>}/>
             <Route path="/register" element={<Register/>}/>
             <Route path="/userTodo/:userId" element={<UserTodos/>}/>
-            <Route path="/userTodo" element={<UserTodos/>}/>
             <Route path="*" element={<Notfound/>}/>
           </Routes>
         </Suspense>

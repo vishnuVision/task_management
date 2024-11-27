@@ -8,8 +8,6 @@ function Notification({ setVisible, isMobile }) {
     const { notification } = useSelector(state => state.notificationReducer);
     const dispatch = useDispatch();
 
-    console.log(notification);
-
     const cancelNotificationModal = async () => {
         try {
             await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/notification`, { withCredentials: true });
@@ -75,7 +73,7 @@ function Notification({ setVisible, isMobile }) {
                                 </div>
                             </div>
                             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                <button onClick={cancelNotificationModal} type="button" className="inline-flex w-full justify-center rounded-md bg-red-400 px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto me-2">Cancel</button>
+                                <button onClick={cancelNotificationModal} type="button" className="inline-flex w-full justify-center rounded-md bg-red-400 px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto me-2 gap-1 items-center"><i className="fa-solid fa-check-double"></i> Mark as done</button>
                             </div>
                         </div>
                     </div>

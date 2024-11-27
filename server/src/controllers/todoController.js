@@ -1,3 +1,6 @@
+import { Comment } from "../db/models/comment.model.js";
+import { Notification } from "../db/models/notification.model.js";
+import { Subtodo } from "../db/models/subTask.model.js";
 import { Todo } from "../db/models/todoModels.js";
 import { User } from "../db/models/user.model.js";
 import { ErrorHandler } from "../utils/ErrorHandler.js";
@@ -43,6 +46,8 @@ const deleteTodo = async (req, res, next) => {
             return next(new ErrorHandler("Todo id is required", 400));
 
         const todo = await Todo.findByIdAndDelete(id);
+        await Subtodo.deleteMany({todo:id});
+        await Comment.deleteMany({todo:id});
 
         if (!todo)
             return next(new ErrorHandler("Todo not found", 404));

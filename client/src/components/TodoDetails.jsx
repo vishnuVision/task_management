@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import CommentDeleteDialog from "../Dialog/CommentDeleteDialog";
-import CommentUpdateDialog from "../Dialog/CommentUpdateDialog";
 import TodoDialog from "../Dialog/TodoDialog";
 import TodoDeleteDialog from "../Dialog/TodoDeleteDialog";
 import SubTaskCard from "./SubTaskCard";
 import Commentcard from "./Commentcard";
+import Pic from "../../public/img_avatar.png";
 
-function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsubTask, getComments, refreshTodoData }) {
+function TodoDetails({ todoData = {}, setIsSideBar, isSideBar, subTask, refreshsubTask, refreshTodoData }) {
     const { admin: isAdmin } = useSelector(state => state?.authReducer?.user);
     const { avatar } = useSelector(state => state.authReducer.user);
 
@@ -21,7 +21,6 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
 
     // dialogs state
     const [isVisibleDelete, setIsVisibleDelete] = useState(false);
-    const [isVisibleUpdate, setIsVisibleUpdate] = useState(false);
     const [isVisibleSubTaskDelete, setIsVisibleSubTaskDelete] = useState(false);
     const [isVisibleSubTaskUpdate, setIsVisibleSubTaskUpdate] = useState(false);
     const [isVisibleSubTaskAdd, setIsVisibleSubTaskAdd] = useState(false);
@@ -36,6 +35,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
     const [priority, setPriority] = useState("");
     const [assigneeAvatar, setAssigneeAvatar] = useState([]);
     const [subtask, setSubTask] = useState(subTask);
+    const [comments, setComments] = useState([]);
     const [todoOptions, setTodoOptions] = useState(false);
 
     const resetData = () => {
@@ -43,9 +43,9 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
         setImage("");
     }
 
-    const getSubTasks = async () => {
+    const getComments = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/subtodo/${todoData?._id}`, {
+            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/comments/${todoData?._id}`, {
                 withCredentials: true,
                 headers: {
                     "Content-Type": "application/json"
@@ -54,8 +54,9 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
 
             if (response.data) {
                 const { success, message, data } = response.data;
+
                 if (success) {
-                    setSubTask(data);
+                    setComments(data);
                 }
                 else {
                     toast.error(message);
@@ -67,6 +68,10 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
             }
         }
     }
+
+    useEffect(()=>{
+        getComments();
+    },[])
 
     useEffect(() => {
         setTitle(todoData?.title);
@@ -99,7 +104,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                     if (success) {
                         toast.success(message, { id: toastId });
                         resetData();
-                        getComments(todoData?._id);
+                        getComments();
                     }
                     else {
                         toast.error(message);
@@ -119,11 +124,6 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
         setEffectedComment(commentData);
     }
 
-    const handleUpdate = async (commentData) => {
-        setIsVisibleUpdate(true);
-        setEffectedComment(commentData);
-    }
-
     const handleDeleteSubTask = async (id) => {
         setEffectedSubTask(id);
         setIsVisibleSubTaskDelete(true);
@@ -135,7 +135,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
     }
 
     return (
-        <div onClick={() => setIsSideBar(false)} className="absolute z-30 inset-0 h-screen w-full">
+        <div onClick={() => setIsSideBar(false)} className={`fixed z-30 inset-0 h-screen w-full ${isSideBar ? "animate-slideInRight duration-100 opacity-100" : "opacity-0"}`}>
             <div className={`z-10 flex fixed flex-col justify-between right-0 top-0 h-full w-84 sm:w-96 lg:w-1/3 bg-slate-50 border-s-[1px] border-slate-200`}>
                 <div className="flex flex-col overflow-y-scroll">
                     <div onClick={(e) => e.stopPropagation()} className="border-b-[1px] border-black p-4 flex justify-between items-center">
@@ -149,11 +149,11 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                                         todoOptions &&
                                         <div className="relative">
                                             <div className="absolute z-40 w-40 bg-white transform right-0 top-0 text-black text-sm rounded-md shadow-lg duration-300">
-                                                <div className="flex flex-col justify-center">
-                                                    <div onClick={() => setVisible(true)} className="hover:bg-slate-100 px-3 py-2 cursor-pointer">
+                                                <div className="flex flex-col justify-start">
+                                                    <div onClick={() => setVisible(true)} className="hover:bg-slate-100 flex justify-start px-3 py-2 cursor-pointer">
                                                         Edit Todo
                                                     </div>
-                                                    <div onClick={() => setDeleteVisible(true)} className="hover:bg-slate-100 px-3 py-2 cursor-pointer">
+                                                    <div onClick={() => setDeleteVisible(true)} className="hover:bg-slate-100 flex justify-start px-3 py-2 cursor-pointer">
                                                         Delete Todo
                                                     </div>
                                                 </div>
@@ -176,7 +176,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                                     {
                                         assigneeAvatar && assigneeAvatar.length > 0 && assigneeAvatar.map(({ avatar, username }, idx) => (
                                             <div key={idx} className="flex items-center">
-                                                <img src={avatar} className="w-10 h-10 rounded-full" alt="User Avatar" />
+                                                <img src={avatar || Pic} className="w-10 h-10 rounded-full" alt="User Avatar" />
                                                 <div className="flex flex-col ml-2">
                                                     <p className="font-bold">{username}</p>
                                                 </div>
@@ -212,7 +212,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                             <div className="flex flex-col gap-2">
                                 {
                                     subtask && subtask.length > 0 && subtask.map((subTask, idx) => (
-                                        <SubTaskCard key={idx} subTask={subTask} handleDeleteSubTask={handleDeleteSubTask} handleUpdateSubTask={handleUpdateSubTask} isAdmin={isAdmin} getSubTask={getSubTasks} />
+                                        <SubTaskCard key={idx} subTask={subTask} handleDeleteSubTask={handleDeleteSubTask} handleUpdateSubTask={handleUpdateSubTask} isAdmin={isAdmin} />
                                     ))
                                 }
                                 {
@@ -222,7 +222,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                                 {
                                     isAdmin &&
                                     <div className="flex mt-4 border-t-[1px] border-slate-200">
-                                        <button onClick={() => setIsVisibleSubTaskAdd(prev => !prev)} className={`py-2 px-2 flex border border-slate-400 my-2 rounded-lg items-center gap-2 justify-start`}>
+                                        <button onClick={() => setIsVisibleSubTaskAdd(prev => !prev)} className={`py-2 px-2 flex border border-slate-400 hover:bg-slate-100 hover:border-slate-500 my-2 rounded-lg items-center gap-2 justify-start`}>
                                             <i className="fa-solid fa-plus"></i> Add subtask
                                         </button>
                                     </div>
@@ -241,7 +241,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                                 }
                                 {
                                     comments && comments?.length > 0 && comments.map((comment, idx) => (
-                                        <Commentcard key={idx} comment={comment} handleDelete={handleDelete} handleUpdate={handleUpdate} getComments={getComments} id={todoData._id} />
+                                        <Commentcard key={idx} comment={comment} handleDelete={handleDelete} getComments={getComments} id={todoData._id} />
                                     ))
                                 }
                             </div>
@@ -281,9 +281,6 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
             {
                 isVisibleDelete && <CommentDeleteDialog visible={isVisibleDelete} setVisible={setIsVisibleDelete} comment={effectedComment} id={todoData?._id} refreshData={getComments} />
             }
-            {/* {
-                isVisibleUpdate && <CommentUpdateDialog visible={isVisibleUpdate} label="update comment" setVisible={setIsVisibleUpdate} id={todoData?._id} type={"update"} comment={effectedComment} refreshData={getComments} />
-            } */}
             {
                 isVisibleSubTaskDelete && <TodoDeleteDialog visible={isVisibleSubTaskDelete} label="Delete Subtask" setVisible={setIsVisibleSubTaskDelete} todoid={todoData?._id} refreshData={refreshsubTask} mode="subTask" id={effectedSubTask} />
             }
@@ -291,7 +288,7 @@ function TodoDetails({ todoData = {}, setIsSideBar, subTask, comments, refreshsu
                 isVisibleSubTaskUpdate && <TodoDialog visible={isVisibleDelete} id={todoData?._id} setVisible={setIsVisibleSubTaskUpdate} label={"Update New Subtask"} mode="subTask" todo={effectedSubTask} type="update" refreshSubTodoData={refreshsubTask} />
             }
             {
-                isVisibleSubTaskAdd && <TodoDialog visible={isVisibleSubTaskAdd} setVisible={setIsVisibleSubTaskAdd} label={"Add New Subtask"} id={todoData?._id} mode="subTask" refreshSubTodoData={getSubTasks} />
+                isVisibleSubTaskAdd && <TodoDialog visible={isVisibleSubTaskAdd} setVisible={setIsVisibleSubTaskAdd} label={"Add New Subtask"} id={todoData?._id} mode="subTask" refreshSubTodoData={refreshsubTask} />
             }
             {
                 visible && <TodoDialog visible={visible} setVisible={setVisible} refreshTodoData={refreshTodoData} setIsSideBar={setIsSideBar} label={"Update New Todo"} type="update" todo={todoData} />
@@ -309,9 +306,7 @@ TodoDetails.propTypes = {
     isSideBar: PropTypes.bool,
     setIsSideBar: PropTypes.any,
     subTask: PropTypes.array,
-    comments: PropTypes.array,
     refreshsubTask: PropTypes.func,
-    getComments: PropTypes.func,
     refreshTodoData: PropTypes.func
 };
 

@@ -9,6 +9,7 @@ import getDetails from "../context/useContext";
 import { getSocket } from "../context/socketContext";
 import { assignComments, assignNotification, assignSubTask } from "../redux/slices/notificationReducer";
 import { io } from "socket.io-client";
+import { assignAllUsers } from "../redux/slices/authReducer";
 
 function AppDashboard({ children }) {
 
@@ -17,6 +18,7 @@ function AppDashboard({ children }) {
   const [inCompletedList, setInCompletedList] = useState([]);
   const [inProgressList, setInProgressList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [loadMessage, setLoadMessage] = useState("");
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
@@ -24,6 +26,7 @@ function AppDashboard({ children }) {
   const dispatch = useDispatch();
 
   const getTodos = async (page = 1) => {
+    setIsLoading(true);
     try {
       const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/getTodos/${page}`, { withCredentials: true });
       if (response.data) {
@@ -47,7 +50,7 @@ function AppDashboard({ children }) {
         toast.error(error.response.data.message);
       }
     }
-    setLoading("");
+    setIsLoading(false);
   }
 
   const getAllUser = async () => {
@@ -61,6 +64,7 @@ function AppDashboard({ children }) {
       if (response?.data) {
         const { data, success } = response.data;
         if (success) {
+          dispatch(assignAllUsers(data));
           setUsers(data);
         }
       }
@@ -111,7 +115,6 @@ function AppDashboard({ children }) {
     })
 
     socket.on("NEW_NOTIFICATION", (data) => {
-      console.log(data);
       dispatch(assignNotification(data))
       getTodos();
     })
@@ -126,7 +129,7 @@ function AppDashboard({ children }) {
 
   return (
     <getSocket.Provider value={{ socket }}>
-      <getDetails.Provider value={{ refreshData: getTodos, completedList, inCompletedList, inProgressList, loading, setLoading, loadMessage, page, setPage, users }}>
+      <getDetails.Provider value={{ refreshData: getTodos, completedList, inCompletedList, inProgressList, loading, setLoading,isLoading,setIsLoading,loadMessage, page, setPage, users }}>
         <div className="flex flex-col">
           <Topbar />
           <div className="flex flex-row h-full overflow-x-hidden overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200">

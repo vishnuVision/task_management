@@ -62,7 +62,6 @@ io.on("connection", (socket) => {
     socket.on("LOGOUT",()=>{
         if(socket.user)
         {
-            console.log("logout")
             userSockets.delete(socket.user._id.toString());
         }
     })

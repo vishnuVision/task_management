@@ -24,7 +24,6 @@ const createSubTodo = async (req,res,next) => {
         if(!ownerData)
             return next(new ErrorHandler("Owner not found",404));
 
-        console.log(createdTodo);
         emitEvent(req , next , "NEW_SUBTASK" , createdTodo , createdTodo.owner.filter((member)=>member.toString() !== req.admin._id.toString()));
         emitEvent(req , next , "NEW_NOTIFICATION" , {...createdTodo._doc,owner:ownerData,message:"assign a new SubTask"} , createdTodo.owner.filter((member)=>member.toString() !== req.admin._id.toString()));
 
@@ -112,9 +111,31 @@ const getAllSubTodo = async (req,res,next) => {
     }
 }
 
+const getUserSubTodo = async (req,res,next) => {
+    try {
+        if(!req.admin && !req.user)
+            return next(new ErrorHandler("Please Login!",404));
+    
+        const { todo } = req?.params;
+    
+        if(!todo)   
+            return next(new ErrorHandler("Todo id is required",400));
+    
+        const todos = await Subtodo.find({todo}).populate("owner","avatar username admin");
+    
+        if(!todos)       
+            return next(new ErrorHandler("Todos Not Available",404));
+    
+        return sendResponse(res,200,"Todo Fetched Successfully",true,todos);
+    } catch (error) {
+        return next(new ErrorHandler(error.message || "An unexpected error occurred",404));
+    }
+}
+
 export {
     createSubTodo,
     deleteSubTodo,
     updateSubTodo,
-    getAllSubTodo
+    getAllSubTodo,
+    getUserSubTodo
 }

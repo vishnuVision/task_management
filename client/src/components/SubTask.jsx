@@ -4,8 +4,6 @@ import { useSelector } from "react-redux";
 function SubTask({subTask=[],setVisible,color}) {
     const {admin:isAdmin} = useSelector(state=>state?.authReducer?.user);
 
-    console.log(subTask);
-
   return (
     <div className="mt-4">
         {

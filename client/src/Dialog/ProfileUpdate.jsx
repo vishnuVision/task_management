@@ -68,7 +68,6 @@ function ProfileUpdate({ setVisible, user }) {
                     const { success, message, data } = response.data;
 
                     if (success) {
-                        console.log(data);
                         dispatch(assignUser(data));
                         toast.success(message, { id: toastId });
                     }

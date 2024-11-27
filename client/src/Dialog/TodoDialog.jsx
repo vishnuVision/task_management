@@ -5,6 +5,7 @@ import getDetails from "../context/useContext";
 import toast from "react-hot-toast";
 import MultiSelect from "../components/MultiSelect";
 import Input from "../components/Input";
+import { useSelector } from "react-redux";
 
 function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {}, mode="todo",id, refreshSubTodoData,setIsSideBar,refreshTodoData}) {
     const [title, setTitle] = useState("");
@@ -17,9 +18,11 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
     const {refreshData} = useContext(getDetails);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState([]);
+    
+    const {users} = useSelector(state => state.authReducer);
 
     useEffect(() => {
-        getAllUser();
+        setOptions(users);
         if (todo && type==="update") {
             setTitle(todo?.title);
             setDescription(todo?.description);
@@ -28,11 +31,13 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
             if(mode === "subTask")
             {
                 setSelectedOptions(todo?.owner.map(({_id})=>{return _id}));
-                setOptions(todo?.owner);
+                const owner = todo?.owner.map(({_id})=>{return _id});
+                setSelectedUsers(users?.filter(({ _id }) => owner?.includes(_id))?.map(({ username }) => username));
             }
             if(mode === "todo")
             {
                 setSelectedOptions(todo?.owner);
+                setSelectedUsers(users?.filter(({ _id }) => todo?.owner?.includes(_id))?.map(({ username }) => username));
             }
         }
     }, [])
@@ -42,38 +47,6 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
         setDescription("");
         setStatus("");
         setPriority("");
-    }
-
-    const getAllUser = async () => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/getallusers`,{
-                withCredentials:true,
-                headers:{
-                    "Content-Type":"application/json"
-                }
-            });
-            const data = response?.data;
-            if (data?.success) {
-                setOptions(data?.data);
-                if(todo?.owner?.length > 0)
-                {
-                    if(mode==="todo")
-                    {
-                        setSelectedUsers(data?.data?.filter(({ _id }) => todo?.owner?.includes(_id))?.map(({ username }) => username));
-                    }
-                    else
-                    {
-                        setSelectedUsers(todo.owner.map(({username})=>{return username}));
-                    }
-                    
-                }
-            }
-        } catch (error) {
-            if(!error?.response?.data?.success)
-            {
-                toast.error(error.response.data.message);
-            }
-        }
     }
 
     const addTodo = async () => {
@@ -131,7 +104,6 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
                         }
                     });
                     const data = response?.data;
-                    console.log(data);
                     if (data?.success) {
                         
                         toast.success(data?.message, { id: toastId });
@@ -151,7 +123,6 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
                     toast.danger(data?.message, { id: toastId });
                 }
                 } catch (error) {
-                    console.log(error);
                     if(!error?.response?.data?.success)
                     {
                         toast.error(error.response.data.message,{id:toastId});
@@ -181,7 +152,7 @@ function TodoDialog({ setVisible, label = "Add New Todo", type="add", todo = {},
                 const data = response?.data;
                 if (data?.success) {
                     toast.success(data?.message, { id: toastId });
-                    refreshSubTodoData();
+                    refreshSubTodoData(id);
                     setVisible(false);
                     resetData();
                 }

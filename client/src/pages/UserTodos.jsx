@@ -14,27 +14,25 @@ import TodoDetails from "../components/TodoDetails";
 
 function UserTodos() {
     const { admin } = useSelector(state => state.authReducer.user);
+    const { users } = useSelector(state => state.authReducer);
     const { userId } = useParams();
 
-    const [users, setUsers] = useState([]);
     const [page, setPage] = useState(1);
     const [completedList, setCompletedList] = useState([]);
     const [inCompletedList, setInCompletedList] = useState([]);
     const [inProgressList, setInProgressList] = useState([]);
     const [isMobile, setIsMobile] = useState(false);
-    const [todoList,setToDoList] = useState([]);
+    const [todoList, setToDoList] = useState([]);
     const [isList, setIsList] = useState(true);
-    const [allUsers,setAllUsers] = useState();
-    const [isloding,setIsLoding] = useState(false);
-    const [isVisible,setIsVisible] = useState(false);
-    const [todoData,setTodoData] = useState({});
+    const [allUsers, setAllUsers] = useState();
+    const [isVisible, setIsVisible] = useState(false);
+    const [todoData, setTodoData] = useState({});
     const navigate = useNavigate();
     const socket = useMemo(() => io(import.meta.env.VITE_SERVER_URL, { withCredentials: true }), []);
     const dispatch = useDispatch();
 
     const [commentsList, setCommentsList] = useState([]);
     const [subTask, setSubTask] = useState([]);
-    const [isFirst,setIsFirst] = useState(true);
 
     useEffect(() => {
         if (socket) {
@@ -65,50 +63,20 @@ function UserTodos() {
             return navigate("/");
         }
         else {
-            getAllUser();
+            setAllUsers(users.filter(({ admin }) => admin === false));
         }
     }, [])
 
     useEffect(() => {
         if (userId) {
-            if(isList)
-            {
+            if (isList) {
                 getUserTodosForList();
             }
-            else
-            {
+            else {
                 getUserTodos();
             }
         }
-    }, [userId, page,isList])
-
-    const getAllUser = async () => {
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/getallusers`, {
-                withCredentials: true,
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
-            if (response?.data) {
-                const { data, success } = response.data;
-                if (success) {
-                    setUsers(data);
-                    setAllUsers(data.filter(({ admin }) => admin === false));
-                    if(isFirst)
-                    {
-                        navigate(data.filter(({ admin }) => admin === false)[0]?._id);
-                        setIsFirst(false);
-                    }
-                }
-            }
-        } catch (error) {
-            if (!error?.response?.data?.success) {
-                toast.error(error.response.data.message);
-            }
-        }
-        setIsLoding(false);
-    }
+    }, [userId, page, isList])
 
     const getUserTodos = async () => {
         try {
@@ -157,7 +125,7 @@ function UserTodos() {
                         setPage(1);
                     }
                     else {
-                        setToDoList([...data.filter(({priority})=>priority==="HIGH"),...data.filter(({priority})=>priority==="MEDIUM"),...data.filter(({priority})=>priority==="LOW")]);
+                        setToDoList([...data.filter(({ priority }) => priority === "HIGH"), ...data.filter(({ priority }) => priority === "MEDIUM"), ...data.filter(({ priority }) => priority === "LOW")]);
                     }
                 }
             }
@@ -170,60 +138,60 @@ function UserTodos() {
 
     const getSubTasks = async (id) => {
         if (id) {
-          try {
-            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/subtodo/${id}`, {
-              withCredentials: true,
-              headers: {
-                "Content-Type": "application/json"
-              }
-            })
-            if (response.data) {
-              const { success, message, data } = response.data;
-              if (success) {
-                setSubTask(data);
-              }
-              else {
-                toast.error(message);
-              }
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/getUsersubtodo/${id}`, {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                if (response.data) {
+                    const { success, message, data } = response.data;
+                    if (success) {
+                        setSubTask(data);
+                    }
+                    else {
+                        toast.error(message);
+                    }
+                }
+            } catch (error) {
+                if (!error?.response?.data?.success) {
+                    toast.error(error.response.data.message);
+                }
             }
-          } catch (error) {
-            if (!error?.response?.data?.success) {
-              toast.error(error.response.data.message);
-            }
-          }
         }
-      }
-    
-      const getComments = async (id) => {
+    }
+
+    const getComments = async (id) => {
         if (id) {
-          try {
-            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/comments/${id}`, {
-              withCredentials: true,
-              headers: {
-                "Content-Type": "application/json"
-              }
-            })
-    
-            if (response.data) {
-              const { success, message, data } = response.data;
-    
-              if (success) {
-                setCommentsList(data);
-                // setCommentCount(data.filter(({show})=>show===false).length);
-              }
-              else {
-                toast.error(message);
-              }
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/comments/${id}`, {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+
+                if (response.data) {
+                    const { success, message, data } = response.data;
+
+                    if (success) {
+                        setCommentsList(data);
+                    }
+                    else {
+                        toast.error(message);
+                    }
+                }
+            } catch (error) {
+                if (!error?.response?.data?.success) {
+                    toast.error(error.response.data.message);
+                }
             }
-          } catch (error) {
-            if (!error?.response?.data?.success) {
-              toast.error(error.response.data.message);
-            }
-          }
         }
-      }
+    }
 
     return (
+
         <getDetails.Provider value={{ completedList, inCompletedList, inProgressList, refreshData: getUserTodos, page, setPage, users }}>
             <div className="h-screen w-full flex flex-grow flex-row">
                 <div className={`bg-slate-100 fixed lg:block w-64 h-screen overflow-y-scroll ${isMobile ? "fixed top-0 z-50 block" : "hidden"}`}>
@@ -243,23 +211,17 @@ function UserTodos() {
                         <i className="fa-solid fa-bars"></i>
                     </button>
                 </div>
-                {
-                    isloding && (
-                        <div>Loading Data..</div>
-                    )
-                }
-                {
-                    !isloding && 
-                    <div className="w-full flex flex-col flex-grow p-4 ms-0 lg:ms-64">
+
+                <div className="w-full flex flex-col flex-grow p-4 ms-0 lg:ms-64">
                     <div className="m-2">
                         <Link to={"/"} className="bg-slate-200 py-2 px-4 rounded-full"><i className="fa-solid fa-arrow-left"></i></Link>
-                        <div className="border-b-[1px] border-black mt-6 mx-2 relative">
-                            <div className="mx-4 flex font-semibold gap-4 text-black">
-                                <div onClick={() => setIsList(true)} className={`flex items-center gap-1 cursor-pointer ${isList ? "border-b-2 border-black" : ""}`}>
+                        <div className="border-b-[1px] border-slate-300 mt-5 relative">
+                            <div className="mx-4 flex font-semibold gap-4 text-slate-700">
+                                <div onClick={() => setIsList(true)} className={`flex items-center gap-1 px-4 cursor-pointer ${isList ? "border-b-2 border-slate-700" : ""}`}>
                                     <i className="fa-solid fa-list-ul"></i>
                                     <p>List</p>
                                 </div>
-                                <div onClick={() => setIsList(false)} className={`flex items-center gap-1 cursor-pointer ${!isList ? "border-b-2 border-black" : ""}`}>
+                                <div onClick={() => setIsList(false)} className={`flex items-center gap-1 px-4 cursor-pointer ${!isList ? "border-b-2 border-slate-700" : ""}`}>
                                     <i className="fa-solid fa-cube"></i>
                                     <p>Board</p>
                                 </div>
@@ -275,7 +237,7 @@ function UserTodos() {
                     }
                     {
                         userId && isList && (
-                            <div className="relative flex flex-grow overflow-scroll w-[95%] lg:w-[95%] my-4 mx-2 sm:mx-5 md:mx-10 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200">
+                            <div className="relative flex overflow-scroll w-[95%] lg:w-[95%] my-4 mx-2 sm:mx-5 md:mx-10 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200">
                                 <table className="table table-auto border-collapse border border-base-300">
                                     <thead>
                                         <tr className="bg-base-200">
@@ -307,12 +269,14 @@ function UserTodos() {
                         )
                     }
                     {
-                        userId && <Pagination page={page} setPage={setPage} completedList={completedList} inCompletedList={inCompletedList} inProgressList={inProgressList} />
+                        (userId && !isList) && <Pagination page={page} setPage={setPage} completedList={completedList} inCompletedList={inCompletedList} inProgressList={inProgressList} />
                     }
                 </div>
+                {
+                    isVisible && isList && <TodoDetails todoData={{ ...todoData, id: todoData._id }} isSideBar={isVisible} setIsSideBar={setIsVisible} subTask={subTask} comments={commentsList} getComments={getComments} refreshsubTask={getSubTasks} refreshTodoData={getUserTodosForList}/>
                 }
                 {
-                    isVisible && <TodoDetails todoData={{ ...todoData, id: todoData._id }} isSideBar={isVisible} setIsSideBar={setIsVisible} subTask={subTask} comments={commentsList} getComments={getComments} refreshsubTask={getSubTasks} />
+                    isVisible && !isList && <TodoDetails todoData={{ ...todoData, id: todoData._id }} isSideBar={isVisible} setIsSideBar={setIsVisible} subTask={subTask} comments={commentsList} getComments={getComments} refreshsubTask={getSubTasks} refreshTodoData={getUserTodos}/>
                 }
             </div>
         </getDetails.Provider>

@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast";
 
-function Commentcard({ comment, handleDelete, handleUpdate, getComments, id }) {
+function Commentcard({ comment, handleDelete, getComments, id }) {
     const [isDrop, setIsDrop] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [disable,setDisable] = useState(false);
@@ -18,7 +18,6 @@ function Commentcard({ comment, handleDelete, handleUpdate, getComments, id }) {
 
     const deleteImage = async (comment) => {
         let toastId = toast.loading("Deleting image...");
-        console.log(comment?._id);
         if (comment) {
             try {
                 const response = await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/v1/updateComment/${comment?._id}`, {
@@ -58,7 +57,6 @@ function Commentcard({ comment, handleDelete, handleUpdate, getComments, id }) {
                         toast.success(data?.message, { id: toastId });
                         getComments(id);
                         setIsEdit(false);
-                        setText("");
                     }
                     else {
                         toast.error(data?.message, { id: toastId });
@@ -115,11 +113,11 @@ function Commentcard({ comment, handleDelete, handleUpdate, getComments, id }) {
             <div className="ms-11 pb-2">
                 {
                     isEdit &&
-                    <div className="flex flex-col flex-grow border border-black">
-                        <textarea value={text} onChange={(e) => setText(e.target.value)} className="flex-grow border-0 focus:ring-0 focus:border-0 focus:outline-none p-1" type="text" placeholder="Add Comment" />
-                        <div className="flex flex-row-reverse gap-2">
-                            <button onClick={updateComment}>Save changes</button>
-                            <button disabled={disable} onClick={()=>setIsEdit(false)}>Cancel</button>
+                    <div className="flex flex-col flex-grow border border-black rounded-lg py-1 m-1">
+                        <textarea value={text} onChange={(e) => setText(e.target.value)} className="m-1 flex-grow border-0 focus:ring-0 focus:border-0 focus:outline-none p-1" type="text" placeholder="Add Comment" />
+                        <div className="flex flex-row-reverse gap-2 mx-1">
+                            <button className="rounded-md bg-indigo-600 hover:bg-indigo-700 px-2 py-1 text-sm font-semibold text-white" onClick={updateComment}>Save changes</button>
+                            <button className="border px-2 py-1 rounded-md hover:bg-slate-100 hover:border-slate-500" disabled={disable} onClick={()=>setIsEdit(false)}>Cancel</button>
                         </div>
                     </div>
                 }
@@ -140,7 +138,6 @@ function Commentcard({ comment, handleDelete, handleUpdate, getComments, id }) {
 Commentcard.propTypes = {
     comment: PropTypes.object,
     handleDelete: PropTypes.func,
-    handleUpdate: PropTypes.func,
     getComments: PropTypes.func,
     id: PropTypes.string
 }

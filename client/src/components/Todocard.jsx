@@ -8,9 +8,9 @@ import TodoDetails from "./TodoDetails";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { deassignComments, deassignSubTask } from "../redux/slices/notificationReducer";
+import Pic from "../../public/img_avatar.png";
 
 function Todocard({ _id = "", title = "", description = "", priority = "", status = "", owner = []}) {
-  // const { admin: isAdmin } = useSelector(state => state?.authReducer?.user);
   const { users } = useContext(getDetails);
   const { comments, subTodo } = useSelector(state => state.notificationReducer);
   const dispatch = useDispatch();
@@ -24,7 +24,6 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
   const [subTask, setSubTask] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
   const [subTaskCount, setSubTaskCount] = useState(0);
-  const [commentsList, setCommentsList] = useState([]);
 
   const getSubTasks = async () => {
     try {
@@ -51,41 +50,12 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
     }
   }
 
-  const getComments = async () => {
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/v1/comments/${_id}`, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-
-      if (response.data) {
-        const { success, message, data } = response.data;
-
-        if (success) {
-          setCommentsList(data);
-          // setCommentCount(data.filter(({show})=>show===false).length);
-        }
-        else {
-          toast.error(message);
-        }
-      }
-    } catch (error) {
-      if (!error?.response?.data?.success) {
-        toast.error(error.response.data.message);
-      }
-    }
-  }
-
   useEffect(() => {
     const userDetails = owner.map((id) => {
       const user = users.find((user) => user._id === id);
       return { avatar: user?.avatar, username: user?.username };
     });
     setAvatar(userDetails);
-    getSubTasks();
-    getComments();
   }, [])
 
   useEffect(() => {
@@ -129,6 +99,7 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
   useEffect(()=>{
     if(showSubTask)
     {
+      getSubTasks();
       dispatch(deassignSubTask(_id));
     }
   },[showSubTask])
@@ -145,7 +116,7 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
               {
                 avatar && avatar.length > 0 && avatar.map(({ avatar, username }, idx) => (
                   <div key={idx} className="relative group">
-                    <img src={avatar} className="w-10 h-10 rounded-full border-2 border-black" alt="User Avatar" />
+                    <img src={avatar || Pic} className="w-10 h-10 rounded-full border-2 border-black" alt="User Avatar" />
                     <div className="absolute z-10  transform -translate-x-1 bottom-full mb-2 w-max bg-gray-800 text-white text-sm px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       {username}
                     </div>
@@ -190,7 +161,7 @@ function Todocard({ _id = "", title = "", description = "", priority = "", statu
         </div>
       </div>
       {
-        isSideBar && <TodoDetails todoData={{ _id: _id, title, description, priority, status, avatar,owner }} isSideBar={isSideBar} setIsSideBar={setIsSideBar} subTask={subTask} comments={commentsList} getComments={getComments} refreshsubTask={getSubTasks} />
+        isSideBar && <TodoDetails todoData={{ _id: _id, title, description, priority, status, avatar,owner }} isSideBar={isSideBar} setIsSideBar={setIsSideBar} subTask={subTask} refreshsubTask={getSubTasks} />
       }
       {
         visibleSubTask && <TodoDialog visible={visibleSubTask} setVisible={setVisibleSubTask} label={"Add New Subtask"} id={_id} mode="subTask" refreshSubTodoData={getSubTasks} />

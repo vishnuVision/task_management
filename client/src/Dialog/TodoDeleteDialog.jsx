@@ -8,8 +8,6 @@ function TodoDeleteDialog({ visible = false, setVisible, id, refreshData: refres
     const [disable, setDisable] = useState(false);
     const { refreshData } = useContext(getDetails);
 
-    console.log(id);
-
     const handleSubmit = async () => {
         setDisable(true);
         let toastId = toast.loading("Todo Deleting...");

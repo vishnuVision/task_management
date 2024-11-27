@@ -1,9 +1,11 @@
+import { useState } from "react";
 import TodoDashBoard from "../components/TodoDashBoard";
 
 function Home() {
+  const [isFirst,setisFirst] = useState(true);
   return (
-    <div className="flex h-screen flex-grow ms-12 md:ms-16">
-      <TodoDashBoard/>
+    <div className="flex h-screen flex-grow">
+      <TodoDashBoard setIsFirst={setisFirst} isFirst={isFirst}/>
     </div>
   )
 }

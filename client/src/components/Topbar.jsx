@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Notification from "../Dialog/Notification";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { assignUser } from "../redux/slices/authReducer";
+import { assignIsMobile, assignUser } from "../redux/slices/authReducer";
 import { resetLocalData } from "../redux/slices/notificationReducer";
 import { useNavigate } from "react-router-dom";
 import { getSocket } from "../context/socketContext";
@@ -49,9 +49,7 @@ function Topbar() {
           dispatch(assignUser(false));
           dispatch(resetLocalData());
           navigate("/login");
-          socket.emit("LOGOUT", () => {
-            console.log("Disconnected from server");
-          });
+          socket.emit("LOGOUT");
         }
         else {
           toast.error(message, { id: toastId });
@@ -67,6 +65,9 @@ function Topbar() {
   return (
     <>
       <div className="flex flex-row bg-[#2e2e30] text-white justify-between fixed w-full z-10">
+        <div className="text-2xl flex justify-center items-center cursor-pointer px-4 z-50">
+          <button onClick={() => dispatch(assignIsMobile())}><i className="fa-solid fa-bars"></i></button>
+        </div>
         <div className="flex justify-center items-center sm:text-lg text-md font-extrabold lg:text-md ms-4 py-2">
           Task manager
         </div>
@@ -83,7 +84,7 @@ function Topbar() {
             </div>
             {
               isMobile && <div className="pe-4 md:hidden">
-                <button onClick={() => setIsMobile(false)} className="text-3xl"><i className="fa-solid fa-xmark"></i></button>
+                <button onClick={() => setIsMobile(false)} className="text-2xl"><i className="fa-solid fa-xmark"></i></button>
               </div>
             }
           </div>
@@ -99,7 +100,7 @@ function Topbar() {
               <div>
                 <img data-tooltip-target="tooltip-default" src={user?.avatar} className="w-10 h-10 z-0 rounded-full border border-white" alt="User Avatar" />
               </div>
-              <p className="text-lg font-semibold">{user.name}</p>
+              <p className="text-lg font-semibold w-40 text-ellipsis overflow-hidden whitespace-nowrap">{user.name}</p>
               <i className="fa-solid fa-chevron-down"></i>
             </div>
             {
@@ -119,10 +120,10 @@ function Topbar() {
                             <p className="text-black text-center px-2 rounded">{user?.email}</p>
                           </div>
                           <div className="hover:bg-slate-100 py-1 px-2 border-t-[1px] mt-2">
-                            <button onClick={()=>setIsProfileShow(prev=>!prev)} className=" text-black text-lg font-bold py-1 px-2 rounded flex gap-2 items-center"><i className="fa-solid fa-user"></i> Edit Profile</button>
+                            <button onClick={() => setIsProfileShow(prev => !prev)} className=" text-black text-lg font-semibold py-1 px-2 rounded flex gap-2 items-center"><i className="fa-solid fa-user"></i> Profile</button>
                           </div>
                           <div className="hover:bg-slate-100 py-1 px-2 border-t-[1px]">
-                            <button onClick={logout} className=" text-black text-lg font-bold py-1 px-2 rounded flex gap-2 items-center"><i className="fa-solid fa-arrow-right"></i> Logout</button>
+                            <button onClick={logout} className=" text-black text-lg font-semibold py-1 px-2 rounded flex gap-2 items-center"><i className="fa-solid fa-arrow-right"></i> Logout</button>
                           </div>
                         </div>
                       </div>
@@ -134,14 +135,17 @@ function Topbar() {
             }
           </div>
         </div>
-        <div className="md:hidden flex justify-center items-center px-4">
-          <button onClick={() => setIsMobile(prev => !prev)} className="text-3xl">
-            <i className="fa-solid fa-bars"></i>
-          </button>
+        <div className="md:hidden flex justify-center items-center px-2">
+          <div onClick={() => setIsMobile(prev => !prev)} className="flex flex-row justify-center items-center gap-1 cursor-pointer z-20">
+            <div>
+              <img data-tooltip-target="tooltip-default" src={user?.avatar} className="w-8 h-8 z-0 rounded-full border border-white" alt="User Avatar" />
+            </div>
+            <i className="fa-solid fa-chevron-down"></i>
+          </div>
         </div>
       </div>
       {
-        isProfileShow && <ProfileUpdate setVisible={setIsProfileShow} user={user}/>
+        isProfileShow && <ProfileUpdate setVisible={setIsProfileShow} user={user} />
       }
       {
         visible && <TodoDialog setVisible={setVisible} label={"Add New Todo"} type="add" />
